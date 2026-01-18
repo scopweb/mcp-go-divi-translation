@@ -111,6 +111,13 @@ type BulkTranslationSession struct {
 	PartRanges   [][2]int // Start/end indices for each part
 	Translations []string // Collected translations per chunk
 	TextForTranslation string // Generated text with markers (stored, not sent twice)
+	// WordPress metadata (for wordpress source)
+	OriginalTitle   string
+	OriginalSlug    string
+	OriginalExcerpt string
+	TranslatedTitle   string
+	TranslatedSlug    string
+	TranslatedExcerpt string
 }
 
 // Global storage for active extraction sessions
@@ -903,8 +910,8 @@ func (s *MCPServer) handleExtractWordPressText(req JSONRPCRequest, params CallTo
 		return
 	}
 
-	// Read post and create backup
-	post, backupPath, err := wpDB.ReadPostForTranslation(postID, targetLang)
+	// Read post
+	post, err := wpDB.GetPost(postID)
 	if err != nil {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -913,6 +920,23 @@ func (s *MCPServer) handleExtractWordPressText(req JSONRPCRequest, params CallTo
 				Content: []ContentItem{{
 					Type: "text",
 					Text: fmt.Sprintf("ERROR leyendo post: %v", err),
+				}},
+				IsError: true,
+			},
+		})
+		return
+	}
+
+	// Create full backup (includes title, slug, excerpt, content)
+	backupPath, err := wpDB.SaveFullBackup(post, targetLang)
+	if err != nil {
+		s.writeResponse(JSONRPCResponse{
+			JSONRPC: "2.0",
+			ID:      req.ID,
+			Result: CallToolResult{
+				Content: []ContentItem{{
+					Type: "text",
+					Text: fmt.Sprintf("ERROR creando backup: %v", err),
 				}},
 				IsError: true,
 			},
@@ -937,9 +961,14 @@ func (s *MCPServer) handleExtractWordPressText(req JSONRPCRequest, params CallTo
 		return
 	}
 
+	// Store original metadata for translation
+	session.OriginalTitle = post.PostTitle
+	session.OriginalSlug = post.PostName
+	session.OriginalExcerpt = post.PostExcerpt
+
 	s.log("Sesion bulk WordPress iniciada: ID=%s, Post %d, %d chunks, %d partes", session.ExtractionID, postID, session.TotalChunks, session.Parts)
 
-	// Generate and return extraction response with ID
+	// Generate and return extraction response with ID (includes metadata)
 	response := s.generateBulkExtractResponseWithID(session)
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
@@ -1147,6 +1176,17 @@ func (s *MCPServer) getSourceDescription() string {
 	return s.bulkSession.InputPath
 }
 
+// truncateForDisplay truncates a string for display purposes
+func truncateForDisplay(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	if maxLen <= 3 {
+		return s[:maxLen]
+	}
+	return s[:maxLen-3] + "..."
+}
+
 func (s *MCPServer) getSourceDescriptionForSession(session *BulkTranslationSession) string {
 	if session.SourceType == "wordpress" {
 		return fmt.Sprintf("WordPress Post ID %d", session.PostID)
@@ -1176,9 +1216,6 @@ INSTRUCCIONES:
 4. SI traduce atributos "title" y "alt"
 5. Conserva la estructura HTML y saltos de linea
 6. Usa "submit_bulk_translation" con extractionId="%s" y el texto traducido
-
-TEXTO A TRADUCIR:
-=================
 `, session.ExtractionID, s.getSourceDescriptionForSession(session), session.TargetLang, session.TotalChunks,
    session.TargetLang, session.ExtractionID))
 	} else {
@@ -1196,11 +1233,40 @@ INSTRUCCIONES:
 4. SI traduce atributos "title" y "alt"
 5. Conserva la estructura HTML y saltos de linea
 6. Usa "submit_bulk_translation" con extractionId="%s" y el texto traducido
-
-TEXTO A TRADUCIR (PARTE %d):
-============================
 `, session.CurrentPart+1, session.Parts, session.ExtractionID, s.getSourceDescriptionForSession(session), session.TargetLang,
-			partRange[0]+1, partRange[1], session.TotalChunks, session.TargetLang, session.ExtractionID, session.CurrentPart+1))
+			partRange[0]+1, partRange[1], session.TotalChunks, session.TargetLang, session.ExtractionID))
+	}
+
+	// Add WordPress metadata section for first part only
+	if session.SourceType == "wordpress" && session.CurrentPart == 0 {
+		builder.WriteString(`
+METADATOS DEL POST (traducir tambien):
+======================================
+`)
+		builder.WriteString(fmt.Sprintf(`{{POST_TITLE}}
+%s
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+%s
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+%s
+{{/POST_EXCERPT}}
+
+`, session.OriginalTitle, session.OriginalSlug, session.OriginalExcerpt))
+	}
+
+	// Content section header
+	if session.Parts == 1 {
+		builder.WriteString(`CONTENIDO A TRADUCIR:
+=====================
+`)
+	} else {
+		builder.WriteString(fmt.Sprintf(`CONTENIDO A TRADUCIR (PARTE %d):
+================================
+`, session.CurrentPart+1))
 	}
 
 	// Generate text blocks with markers
@@ -1458,6 +1524,42 @@ IMPORTANTE: Backup del contenido original en:
 func (s *MCPServer) parseBulkTranslationForSession(session *BulkTranslationSession, text string) error {
 	partRange := session.PartRanges[session.CurrentPart]
 
+	// Parse WordPress metadata markers (only on first part for WordPress source)
+	if session.SourceType == "wordpress" && session.CurrentPart == 0 {
+		// Parse POST_TITLE
+		if titleStart := strings.Index(text, "{{POST_TITLE}}"); titleStart != -1 {
+			if titleEnd := strings.Index(text, "{{/POST_TITLE}}"); titleEnd != -1 {
+				session.TranslatedTitle = strings.TrimSpace(text[titleStart+len("{{POST_TITLE}}"):titleEnd])
+			}
+		}
+		// If not found, keep original
+		if session.TranslatedTitle == "" {
+			session.TranslatedTitle = session.OriginalTitle
+		}
+
+		// Parse POST_SLUG
+		if slugStart := strings.Index(text, "{{POST_SLUG}}"); slugStart != -1 {
+			if slugEnd := strings.Index(text, "{{/POST_SLUG}}"); slugEnd != -1 {
+				session.TranslatedSlug = strings.TrimSpace(text[slugStart+len("{{POST_SLUG}}"):slugEnd])
+			}
+		}
+		// If not found, keep original
+		if session.TranslatedSlug == "" {
+			session.TranslatedSlug = session.OriginalSlug
+		}
+
+		// Parse POST_EXCERPT
+		if excerptStart := strings.Index(text, "{{POST_EXCERPT}}"); excerptStart != -1 {
+			if excerptEnd := strings.Index(text, "{{/POST_EXCERPT}}"); excerptEnd != -1 {
+				session.TranslatedExcerpt = strings.TrimSpace(text[excerptStart+len("{{POST_EXCERPT}}"):excerptEnd])
+			}
+		}
+		// If not found, keep original
+		if session.TranslatedExcerpt == "" {
+			session.TranslatedExcerpt = session.OriginalExcerpt
+		}
+	}
+
 	// Parse each chunk marker
 	for i := partRange[0]; i < partRange[1]; i++ {
 		marker := fmt.Sprintf("{{CHUNK_%03d}}", i+1)
@@ -1540,15 +1642,22 @@ func (s *MCPServer) saveBulkToWordPressFromSession(session *BulkTranslationSessi
 		builder.WriteString(t.Value)
 	}
 
-	result := dropEmptyPTags(builder.String())
+	translatedContent := dropEmptyPTags(builder.String())
 
-	// Update WordPress
+	// Update WordPress with full post data (title, slug, excerpt, content)
 	wpDB, err := s.getWordPressDB()
 	if err != nil {
 		return fmt.Sprintf("ERROR conectando a WordPress: %v", err)
 	}
 
-	err = wpDB.UpdatePostContent(session.PostID, result)
+	// Use UpdatePostFull to update all fields
+	err = wpDB.UpdatePostFull(
+		session.PostID,
+		session.TranslatedTitle,
+		session.TranslatedSlug,
+		session.TranslatedExcerpt,
+		translatedContent,
+	)
 	if err != nil {
 		return fmt.Sprintf("ERROR actualizando post: %v", err)
 	}
@@ -1560,11 +1669,19 @@ Post ID actualizado: %d
 Backup original: %s
 Bloques traducidos: %d
 
+CAMPOS ACTUALIZADOS:
+- Titulo: %s
+- Slug: %s
+- Excerpt: %s
+- Contenido: %d bloques traducidos
+
 El post de WordPress ha sido actualizado exitosamente.
 Los shortcodes [et_*] se han preservado intactos.
 
 IMPORTANTE: Backup del contenido original en:
-%s`, session.ExtractionID, session.PostID, session.BackupPath, session.TotalChunks, session.BackupPath)
+%s`, session.ExtractionID, session.PostID, session.BackupPath, session.TotalChunks,
+		session.TranslatedTitle, session.TranslatedSlug,
+		truncateForDisplay(session.TranslatedExcerpt, 50), session.TotalChunks, session.BackupPath)
 }
 
 func (s *MCPServer) handleGetStatus(req JSONRPCRequest) {

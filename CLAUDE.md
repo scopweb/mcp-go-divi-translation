@@ -37,7 +37,47 @@ Traduce el post de WordPress a [IDIOMA]:
 - postId: [ID_POST]
 - targetLang: [CODIGO_IDIOMA]
 
-Usa extract_wordpress_text, traduce manteniendo los marcadores {{CHUNK_XXX}}, y usa submit_bulk_translation.
+Usa extract_wordpress_text, traduce manteniendo los marcadores {{CHUNK_XXX}}, {{POST_TITLE}}, {{POST_SLUG}}, {{POST_EXCERPT}}, y usa submit_bulk_translation.
+```
+
+## Metadatos de WordPress (Title, Slug, Excerpt)
+
+Para posts de WordPress, `extract_wordpress_text` incluye los metadatos del post para traducir:
+
+```
+METADATOS DEL POST (traducir tambien):
+======================================
+{{POST_TITLE}}
+My Original Title
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+my-original-slug
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+This is the original excerpt of the post.
+{{/POST_EXCERPT}}
+```
+
+**IMPORTANTE para metadatos:**
+- `POST_TITLE`: Traducir el titulo del post
+- `POST_SLUG`: Traducir/adaptar el slug (URL amigable). Usar guiones, sin espacios, sin caracteres especiales
+- `POST_EXCERPT`: Traducir el extracto/resumen del post
+
+**Ejemplo de traduccion de metadatos:**
+```
+{{POST_TITLE}}
+Mi Titulo Traducido
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+mi-titulo-traducido
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Este es el extracto traducido del post.
+{{/POST_EXCERPT}}
 ```
 
 ## Reglas de traduccion CRITICAS
@@ -53,7 +93,8 @@ Usa extract_wordpress_text, traduce manteniendo los marcadores {{CHUNK_XXX}}, y 
 - Atributos de shortcodes: `_builder_version`, `global_colors_info`, etc.
 - Atributos HTML: `class`, `style`, `href`, `src`, `id`, `data-*`, `width`, `height`
 - URLs completas
-- Marcadores: `{{CHUNK_001}}`, `{{/CHUNK_001}}`
+- Marcadores de contenido: `{{CHUNK_001}}`, `{{/CHUNK_001}}`
+- Marcadores de metadatos: `{{POST_TITLE}}`, `{{POST_SLUG}}`, `{{POST_EXCERPT}}` y sus cierres
 
 ### CONSERVAR
 - Estructura HTML exacta
@@ -153,6 +194,51 @@ Tu traduccion debe mantener los marcadores:
 ```
 
 Nota: `class="intro"` y `src="image.jpg"` NO se traducen. `alt="Beautiful landscape"` SI se traduce.
+
+## Ejemplo completo WordPress (con metadatos)
+
+**Entrada (extract_wordpress_text devuelve):**
+```
+METADATOS DEL POST (traducir tambien):
+======================================
+{{POST_TITLE}}
+Welcome to Our Store
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+welcome-to-our-store
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Discover our amazing products and services.
+{{/POST_EXCERPT}}
+
+CONTENIDO A TRADUCIR:
+=====================
+
+{{CHUNK_001}}
+<p class="intro">Welcome to our store</p>
+{{/CHUNK_001}}
+```
+
+**Salida correcta (para submit_bulk_translation):**
+```
+{{POST_TITLE}}
+Bienvenido a Nuestra Tienda
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+bienvenido-a-nuestra-tienda
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Descubre nuestros increibles productos y servicios.
+{{/POST_EXCERPT}}
+
+{{CHUNK_001}}
+<p class="intro">Bienvenido a nuestra tienda</p>
+{{/CHUNK_001}}
+```
 
 ## Manejo de partes multiples
 

@@ -22,6 +22,8 @@ type WordPressDB struct {
 type WordPressPost struct {
 	ID          int64
 	PostTitle   string
+	PostName    string // slug
+	PostExcerpt string
 	PostContent string
 	PostStatus  string
 	PostType    string
@@ -84,7 +86,7 @@ func (wp *WordPressDB) Close() {
 // GetPost retrieves a WordPress post by ID
 func (wp *WordPressDB) GetPost(postID int64) (*WordPressPost, error) {
 	query := fmt.Sprintf(`
-		SELECT ID, post_title, post_content, post_status, post_type
+		SELECT ID, post_title, post_name, post_excerpt, post_content, post_status, post_type
 		FROM %sposts
 		WHERE ID = ?`,
 		wp.tablePrefix)
@@ -93,6 +95,8 @@ func (wp *WordPressDB) GetPost(postID int64) (*WordPressPost, error) {
 	err := wp.db.QueryRow(query, postID).Scan(
 		&post.ID,
 		&post.PostTitle,
+		&post.PostName,
+		&post.PostExcerpt,
 		&post.PostContent,
 		&post.PostStatus,
 		&post.PostType,
@@ -128,6 +132,28 @@ func (wp *WordPressDB) UpdatePostContent(postID int64, newContent string) error 
 	return nil
 }
 
+// UpdatePostFull updates post_content, post_title, post_name (slug), and post_excerpt
+func (wp *WordPressDB) UpdatePostFull(postID int64, title, slug, excerpt, content string) error {
+	query := fmt.Sprintf(`
+		UPDATE %sposts
+		SET post_title = ?, post_name = ?, post_excerpt = ?, post_content = ?,
+		    post_modified = NOW(), post_modified_gmt = UTC_TIMESTAMP()
+		WHERE ID = ?`,
+		wp.tablePrefix)
+
+	result, err := wp.db.Exec(query, title, slug, excerpt, content, postID)
+	if err != nil {
+		return fmt.Errorf("error actualizando post: %v", err)
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("post ID %d no encontrado para actualizar", postID)
+	}
+
+	return nil
+}
+
 // SaveBackup saves the original content to a backup file
 func (wp *WordPressDB) SaveBackup(postID int64, content string, lang string) (string, error) {
 	// Create backup directory if it doesn't exist
@@ -140,6 +166,43 @@ func (wp *WordPressDB) SaveBackup(postID int64, content string, lang string) (st
 	backupPath := filepath.Join(wp.backupDir, filename)
 
 	if err := os.WriteFile(backupPath, []byte(content), 0644); err != nil {
+		return "", fmt.Errorf("error guardando backup: %v", err)
+	}
+
+	return backupPath, nil
+}
+
+// SaveFullBackup saves all translatable fields to a backup file
+func (wp *WordPressDB) SaveFullBackup(post *WordPressPost, lang string) (string, error) {
+	// Create backup directory if it doesn't exist
+	if err := os.MkdirAll(wp.backupDir, 0755); err != nil {
+		return "", fmt.Errorf("error creando directorio de backup: %v", err)
+	}
+
+	timestamp := time.Now().Format("20060102_150405")
+	filename := fmt.Sprintf("post_%d_full_backup_%s_%s.txt", post.ID, lang, timestamp)
+	backupPath := filepath.Join(wp.backupDir, filename)
+
+	// Create backup content with all fields
+	backupContent := fmt.Sprintf(`=== WORDPRESS POST BACKUP ===
+Post ID: %d
+Date: %s
+Target Language: %s
+
+=== POST_TITLE ===
+%s
+
+=== POST_NAME (SLUG) ===
+%s
+
+=== POST_EXCERPT ===
+%s
+
+=== POST_CONTENT ===
+%s
+`, post.ID, timestamp, lang, post.PostTitle, post.PostName, post.PostExcerpt, post.PostContent)
+
+	if err := os.WriteFile(backupPath, []byte(backupContent), 0644); err != nil {
 		return "", fmt.Errorf("error guardando backup: %v", err)
 	}
 

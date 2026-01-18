@@ -2,6 +2,49 @@
 
 Todos los cambios notables de este proyecto se documentan en este archivo.
 
+## [4.2.0] - 2025-01-18
+
+### Agregado
+
+- **Traduccion de metadatos WordPress**: Ahora se traduce titulo, slug y excerpt del post
+  - `{{POST_TITLE}}`: Titulo del post
+  - `{{POST_SLUG}}`: URL amigable (slug)
+  - `{{POST_EXCERPT}}`: Extracto/resumen del post
+
+- **Backup completo**: El backup ahora incluye todos los campos (title, slug, excerpt, content)
+
+- **UpdatePostFull**: Nueva funcion que actualiza todos los campos del post en una sola operacion
+
+### Cambiado
+
+- `extract_wordpress_text` ahora incluye seccion de metadatos al inicio del texto extraido
+- `submit_bulk_translation` parsea los marcadores de metadatos y actualiza todos los campos
+- `SaveFullBackup` reemplaza el backup parcial para incluir todos los datos originales
+
+### Ejemplo de salida
+
+```
+METADATOS DEL POST (traducir tambien):
+======================================
+{{POST_TITLE}}
+Original Title
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+original-slug
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Original excerpt text.
+{{/POST_EXCERPT}}
+
+CONTENIDO A TRADUCIR:
+=====================
+{{CHUNK_001}}...
+```
+
+---
+
 ## [4.1.0] - 2025-01-18
 
 ### Agregado
