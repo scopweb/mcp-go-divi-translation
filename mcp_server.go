@@ -2,11 +2,14 @@ package main
 
 import (
 	"bufio"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+	"sync"
 )
 
 // MCP JSON-RPC types
@@ -93,6 +96,7 @@ type TranslationSession struct {
 
 // BulkTranslationSession holds state for the optimized bulk translation flow
 type BulkTranslationSession struct {
+	ExtractionID string   // Unique ID for this extraction
 	SourceType   string   // "file" or "wordpress"
 	InputPath    string   // For file source
 	OutputPath   string   // For file source
@@ -106,6 +110,20 @@ type BulkTranslationSession struct {
 	CurrentPart  int      // Current part being translated
 	PartRanges   [][2]int // Start/end indices for each part
 	Translations []string // Collected translations per chunk
+	TextForTranslation string // Generated text with markers (stored, not sent twice)
+}
+
+// Global storage for active extraction sessions
+var (
+	activeExtractions   = make(map[string]*BulkTranslationSession)
+	extractionsMutex    sync.RWMutex
+)
+
+// generateExtractionID creates a unique ID for an extraction session
+func generateExtractionID() string {
+	bytes := make([]byte, 8)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)
 }
 
 // MCPServer implements the MCP protocol
@@ -159,7 +177,7 @@ func (s *MCPServer) handleInitialize(req JSONRPCRequest) {
 	}
 	result.Capabilities.Tools = map[string]interface{}{}
 	result.ServerInfo.Name = "divi-translator"
-	result.ServerInfo.Version = "3.0.0"
+	result.ServerInfo.Version = "4.1.0"
 
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
@@ -240,7 +258,7 @@ func (s *MCPServer) handleListTools(req JSONRPCRequest) {
 		// These tools minimize MCP calls: extract once, translate text, reassemble once
 		{
 			Name:        "extract_divi_text",
-			Description: "OPTIMIZADO: Extrae TODO el texto traducible de un archivo Divi en UN SOLO documento. Devuelve texto con marcadores {{CHUNK_001}}...{{/CHUNK_001}} para traducir. Usa submit_bulk_translation cuando termines de traducir.",
+			Description: "OPTIMIZADO: Extrae texto de archivo Divi. Devuelve extractionId y texto con marcadores {{CHUNK_XXX}}. Traduce el texto y usa submit_bulk_translation con el extractionId.",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -262,7 +280,7 @@ func (s *MCPServer) handleListTools(req JSONRPCRequest) {
 		},
 		{
 			Name:        "extract_wordpress_text",
-			Description: "OPTIMIZADO: Extrae TODO el texto traducible de un post WordPress en UN SOLO documento. Devuelve texto con marcadores {{CHUNK_001}}...{{/CHUNK_001}} para traducir. Usa submit_bulk_translation cuando termines.",
+			Description: "OPTIMIZADO: Extrae texto de post WordPress. Devuelve extractionId y texto con marcadores {{CHUNK_XXX}}. Traduce el texto y usa submit_bulk_translation con el extractionId.",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -280,16 +298,20 @@ func (s *MCPServer) handleListTools(req JSONRPCRequest) {
 		},
 		{
 			Name:        "submit_bulk_translation",
-			Description: "OPTIMIZADO: Recibe el texto traducido (con marcadores {{CHUNK_XXX}}), reensambla el documento Divi y lo guarda. Llamar despues de traducir el texto de extract_divi_text o extract_wordpress_text.",
+			Description: "Recibe extractionId y texto traducido (con marcadores {{CHUNK_XXX}}), reensambla y guarda el documento.",
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
+					"extractionId": map[string]interface{}{
+						"type":        "string",
+						"description": "ID de extraccion devuelto por extract_divi_text o extract_wordpress_text",
+					},
 					"translatedText": map[string]interface{}{
 						"type":        "string",
 						"description": "El texto traducido completo, manteniendo los marcadores {{CHUNK_XXX}}...{{/CHUNK_XXX}}",
 					},
 				},
-				"required": []string{"translatedText"},
+				"required": []string{"extractionId", "translatedText"},
 			},
 		},
 	}
@@ -811,9 +833,9 @@ func (s *MCPServer) handleExtractDiviText(req JSONRPCRequest, params CallToolPar
 		return
 	}
 
-	s.initBulkSession(string(data), targetLang, "file", inputPath, outputPath, 0, "")
+	session := s.initBulkSessionWithID(string(data), targetLang, "file", inputPath, outputPath, 0, "")
 
-	if s.bulkSession == nil {
+	if session == nil {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
@@ -828,10 +850,10 @@ func (s *MCPServer) handleExtractDiviText(req JSONRPCRequest, params CallToolPar
 		return
 	}
 
-	s.log("Sesion bulk archivo iniciada: %d chunks, %d partes", s.bulkSession.TotalChunks, s.bulkSession.Parts)
+	s.log("Sesion bulk archivo iniciada: ID=%s, %d chunks, %d partes", session.ExtractionID, session.TotalChunks, session.Parts)
 
-	// Generate and return first part
-	response := s.generateBulkExtractResponse()
+	// Generate and return extraction response with ID
+	response := s.generateBulkExtractResponseWithID(session)
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
@@ -898,9 +920,9 @@ func (s *MCPServer) handleExtractWordPressText(req JSONRPCRequest, params CallTo
 		return
 	}
 
-	s.initBulkSession(post.PostContent, targetLang, "wordpress", "", "", postID, backupPath)
+	session := s.initBulkSessionWithID(post.PostContent, targetLang, "wordpress", "", "", postID, backupPath)
 
-	if s.bulkSession == nil {
+	if session == nil {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
@@ -915,10 +937,10 @@ func (s *MCPServer) handleExtractWordPressText(req JSONRPCRequest, params CallTo
 		return
 	}
 
-	s.log("Sesion bulk WordPress iniciada: Post %d, %d chunks, %d partes", postID, s.bulkSession.TotalChunks, s.bulkSession.Parts)
+	s.log("Sesion bulk WordPress iniciada: ID=%s, Post %d, %d chunks, %d partes", session.ExtractionID, postID, session.TotalChunks, session.Parts)
 
-	// Generate and return first part
-	response := s.generateBulkExtractResponse()
+	// Generate and return extraction response with ID
+	response := s.generateBulkExtractResponseWithID(session)
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
@@ -991,6 +1013,77 @@ func (s *MCPServer) initBulkSession(content, targetLang, sourceType, inputPath, 
 	}
 }
 
+// initBulkSessionWithID creates a new bulk session with a unique ID and stores it globally
+func (s *MCPServer) initBulkSessionWithID(content, targetLang, sourceType, inputPath, outputPath string, postID int64, backupPath string) *BulkTranslationSession {
+	// Tokenize
+	tokens := tokenize(content)
+
+	// Extract text chunk indices
+	var chunkIndices []int
+	for i, t := range tokens {
+		if t.Kind == "text" && strings.TrimSpace(t.Value) != "" {
+			chunkIndices = append(chunkIndices, i)
+		}
+	}
+
+	if len(chunkIndices) == 0 {
+		return nil
+	}
+
+	// Calculate total text length to determine parts
+	totalLen := 0
+	for _, idx := range chunkIndices {
+		totalLen += len(tokens[idx].Value)
+	}
+
+	// Determine number of parts (1, 2, or 3)
+	parts := 1
+	if totalLen > maxCharsPerPart*2 {
+		parts = 3
+	} else if totalLen > maxCharsPerPart {
+		parts = 2
+	}
+
+	// Calculate part ranges (distribute chunks evenly)
+	partRanges := make([][2]int, parts)
+	chunksPerPart := (len(chunkIndices) + parts - 1) / parts
+	for p := 0; p < parts; p++ {
+		start := p * chunksPerPart
+		end := start + chunksPerPart
+		if end > len(chunkIndices) {
+			end = len(chunkIndices)
+		}
+		partRanges[p] = [2]int{start, end}
+	}
+
+	// Generate unique ID
+	extractionID := generateExtractionID()
+
+	session := &BulkTranslationSession{
+		ExtractionID: extractionID,
+		SourceType:   sourceType,
+		InputPath:    inputPath,
+		OutputPath:   outputPath,
+		PostID:       postID,
+		BackupPath:   backupPath,
+		TargetLang:   targetLang,
+		Tokens:       tokens,
+		ChunkIndices: chunkIndices,
+		TotalChunks:  len(chunkIndices),
+		Parts:        parts,
+		CurrentPart:  0,
+		PartRanges:   partRanges,
+		Translations: make([]string, len(chunkIndices)),
+	}
+
+	// Store in global map
+	extractionsMutex.Lock()
+	activeExtractions[extractionID] = session
+	extractionsMutex.Unlock()
+
+	return session
+}
+
 func (s *MCPServer) generateBulkExtractResponse() string {
 	session := s.bulkSession
 	partRange := session.PartRanges[session.CurrentPart]
@@ -1054,15 +1147,84 @@ func (s *MCPServer) getSourceDescription() string {
 	return s.bulkSession.InputPath
 }
 
+func (s *MCPServer) getSourceDescriptionForSession(session *BulkTranslationSession) string {
+	if session.SourceType == "wordpress" {
+		return fmt.Sprintf("WordPress Post ID %d", session.PostID)
+	}
+	return session.InputPath
+}
+
+// generateBulkExtractResponseWithID generates the extraction response with extractionId included
+func (s *MCPServer) generateBulkExtractResponseWithID(session *BulkTranslationSession) string {
+	partRange := session.PartRanges[session.CurrentPart]
+
+	var builder strings.Builder
+
+	// Header with extractionId
+	if session.Parts == 1 {
+		builder.WriteString(fmt.Sprintf(`EXTRACCION COMPLETADA
+=====================
+extractionId: %s
+Origen: %s
+Idioma destino: %s
+Total de bloques: %d
+
+INSTRUCCIONES:
+1. Traduce TODO el texto a %s
+2. CONSERVA los marcadores {{CHUNK_XXX}} y {{/CHUNK_XXX}} exactamente igual
+3. NO traduzcas atributos HTML (class, style, href, src, id, data-*)
+4. SI traduce atributos "title" y "alt"
+5. Conserva la estructura HTML y saltos de linea
+6. Usa "submit_bulk_translation" con extractionId="%s" y el texto traducido
+
+TEXTO A TRADUCIR:
+=================
+`, session.ExtractionID, s.getSourceDescriptionForSession(session), session.TargetLang, session.TotalChunks,
+   session.TargetLang, session.ExtractionID))
+	} else {
+		builder.WriteString(fmt.Sprintf(`EXTRACCION COMPLETADA - PARTE %d de %d
+======================================
+extractionId: %s
+Origen: %s
+Idioma destino: %s
+Bloques en esta parte: %d-%d de %d total
+
+INSTRUCCIONES:
+1. Traduce TODO el texto a %s
+2. CONSERVA los marcadores {{CHUNK_XXX}} y {{/CHUNK_XXX}} exactamente igual
+3. NO traduzcas atributos HTML (class, style, href, src, id, data-*)
+4. SI traduce atributos "title" y "alt"
+5. Conserva la estructura HTML y saltos de linea
+6. Usa "submit_bulk_translation" con extractionId="%s" y el texto traducido
+
+TEXTO A TRADUCIR (PARTE %d):
+============================
+`, session.CurrentPart+1, session.Parts, session.ExtractionID, s.getSourceDescriptionForSession(session), session.TargetLang,
+			partRange[0]+1, partRange[1], session.TotalChunks, session.TargetLang, session.ExtractionID, session.CurrentPart+1))
+	}
+
+	// Generate text blocks with markers
+	for i := partRange[0]; i < partRange[1]; i++ {
+		chunkIdx := session.ChunkIndices[i]
+		text := session.Tokens[chunkIdx].Value
+		builder.WriteString(fmt.Sprintf("\n{{CHUNK_%03d}}\n%s\n{{/CHUNK_%03d}}\n", i+1, text, i+1))
+	}
+
+	return builder.String()
+}
+
 func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallToolParams) {
-	if s.bulkSession == nil {
+	extractionId, _ := params.Arguments["extractionId"].(string)
+	translatedText, _ := params.Arguments["translatedText"].(string)
+
+	if extractionId == "" {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
 			Result: CallToolResult{
 				Content: []ContentItem{{
 					Type: "text",
-					Text: "ERROR: No hay sesion de extraccion activa. Usa extract_divi_text o extract_wordpress_text primero.",
+					Text: "ERROR: extractionId es obligatorio",
 				}},
 				IsError: true,
 			},
@@ -1070,7 +1232,6 @@ func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallT
 		return
 	}
 
-	translatedText, _ := params.Arguments["translatedText"].(string)
 	if translatedText == "" {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -1086,8 +1247,28 @@ func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallT
 		return
 	}
 
+	// Get session by extractionId
+	extractionsMutex.RLock()
+	session, exists := activeExtractions[extractionId]
+	extractionsMutex.RUnlock()
+
+	if !exists {
+		s.writeResponse(JSONRPCResponse{
+			JSONRPC: "2.0",
+			ID:      req.ID,
+			Result: CallToolResult{
+				Content: []ContentItem{{
+					Type: "text",
+					Text: fmt.Sprintf("ERROR: extractionId '%s' no encontrado. Usa extract_divi_text o extract_wordpress_text primero.", extractionId),
+				}},
+				IsError: true,
+			},
+		})
+		return
+	}
+
 	// Parse translated chunks from the text
-	err := s.parseBulkTranslation(translatedText)
+	err := s.parseBulkTranslationForSession(session, translatedText)
 	if err != nil {
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -1103,19 +1284,19 @@ func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallT
 		return
 	}
 
-	s.bulkSession.CurrentPart++
+	session.CurrentPart++
 
 	// Check if there are more parts
-	if s.bulkSession.CurrentPart < s.bulkSession.Parts {
+	if session.CurrentPart < session.Parts {
 		// Return next part
-		response := s.generateBulkExtractResponse()
+		response := s.generateBulkExtractResponseWithID(session)
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
 			Result: CallToolResult{
 				Content: []ContentItem{{
 					Type: "text",
-					Text: fmt.Sprintf("PARTE %d RECIBIDA\n\n%s", s.bulkSession.CurrentPart, response),
+					Text: fmt.Sprintf("PARTE %d RECIBIDA\n\n%s", session.CurrentPart, response),
 				}},
 			},
 		})
@@ -1124,11 +1305,16 @@ func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallT
 
 	// All parts received, save the result
 	var result string
-	if s.bulkSession.SourceType == "wordpress" {
-		result = s.saveBulkToWordPress()
+	if session.SourceType == "wordpress" {
+		result = s.saveBulkToWordPressFromSession(session)
 	} else {
-		result = s.saveBulkToFile()
+		result = s.saveBulkToFileFromSession(session)
 	}
+
+	// Remove from active extractions
+	extractionsMutex.Lock()
+	delete(activeExtractions, extractionId)
+	extractionsMutex.Unlock()
 
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
@@ -1266,6 +1452,119 @@ Los shortcodes [et_*] se han preservado intactos.
 
 IMPORTANTE: Backup del contenido original en:
 %s`, postID, backupPath, totalChunks, backupPath)
+}
+
+// parseBulkTranslationForSession parses translated text for a specific session
+func (s *MCPServer) parseBulkTranslationForSession(session *BulkTranslationSession, text string) error {
+	partRange := session.PartRanges[session.CurrentPart]
+
+	// Parse each chunk marker
+	for i := partRange[0]; i < partRange[1]; i++ {
+		marker := fmt.Sprintf("{{CHUNK_%03d}}", i+1)
+		endMarker := fmt.Sprintf("{{/CHUNK_%03d}}", i+1)
+
+		startIdx := strings.Index(text, marker)
+		if startIdx == -1 {
+			return fmt.Errorf("marcador %s no encontrado en la traduccion", marker)
+		}
+
+		endIdx := strings.Index(text, endMarker)
+		if endIdx == -1 {
+			return fmt.Errorf("marcador de cierre %s no encontrado", endMarker)
+		}
+
+		// Extract translated content between markers
+		contentStart := startIdx + len(marker)
+		translated := strings.TrimSpace(text[contentStart:endIdx])
+
+		// Preserve original leading/trailing whitespace pattern
+		original := session.Tokens[session.ChunkIndices[i]].Value
+		if strings.HasPrefix(original, "\n") && !strings.HasPrefix(translated, "\n") {
+			translated = "\n" + translated
+		}
+		if strings.HasSuffix(original, "\n") && !strings.HasSuffix(translated, "\n") {
+			translated = translated + "\n"
+		}
+
+		session.Translations[i] = translated
+	}
+
+	return nil
+}
+
+// saveBulkToFileFromSession saves translated content to file for a specific session
+func (s *MCPServer) saveBulkToFileFromSession(session *BulkTranslationSession) string {
+	// Replace text tokens with translations
+	for i, idx := range session.ChunkIndices {
+		if session.Translations[i] != "" {
+			session.Tokens[idx].Value = session.Translations[i]
+		}
+	}
+
+	// Rebuild document
+	var builder strings.Builder
+	for _, t := range session.Tokens {
+		builder.WriteString(t.Value)
+	}
+
+	result := dropEmptyPTags(builder.String())
+
+	// Save to file
+	err := os.WriteFile(session.OutputPath, []byte(result), 0644)
+	if err != nil {
+		return fmt.Sprintf("ERROR guardando archivo: %v", err)
+	}
+
+	return fmt.Sprintf(`TRADUCCION BULK COMPLETADA (ARCHIVO)
+====================================
+extractionId: %s
+Archivo guardado: %s
+Bloques traducidos: %d
+
+El archivo Divi ha sido traducido y guardado exitosamente.
+Los shortcodes [et_*] se han preservado intactos.`, session.ExtractionID, session.OutputPath, session.TotalChunks)
+}
+
+// saveBulkToWordPressFromSession saves translated content to WordPress for a specific session
+func (s *MCPServer) saveBulkToWordPressFromSession(session *BulkTranslationSession) string {
+	// Replace text tokens with translations
+	for i, idx := range session.ChunkIndices {
+		if session.Translations[i] != "" {
+			session.Tokens[idx].Value = session.Translations[i]
+		}
+	}
+
+	// Rebuild document
+	var builder strings.Builder
+	for _, t := range session.Tokens {
+		builder.WriteString(t.Value)
+	}
+
+	result := dropEmptyPTags(builder.String())
+
+	// Update WordPress
+	wpDB, err := s.getWordPressDB()
+	if err != nil {
+		return fmt.Sprintf("ERROR conectando a WordPress: %v", err)
+	}
+
+	err = wpDB.UpdatePostContent(session.PostID, result)
+	if err != nil {
+		return fmt.Sprintf("ERROR actualizando post: %v", err)
+	}
+
+	return fmt.Sprintf(`TRADUCCION BULK COMPLETADA (WORDPRESS)
+======================================
+extractionId: %s
+Post ID actualizado: %d
+Backup original: %s
+Bloques traducidos: %d
+
+El post de WordPress ha sido actualizado exitosamente.
+Los shortcodes [et_*] se han preservado intactos.
+
+IMPORTANTE: Backup del contenido original en:
+%s`, session.ExtractionID, session.PostID, session.BackupPath, session.TotalChunks, session.BackupPath)
 }
 
 func (s *MCPServer) handleGetStatus(req JSONRPCRequest) {

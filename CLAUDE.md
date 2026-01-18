@@ -9,10 +9,15 @@ Usa SIEMPRE el modo BULK. El modo legacy (chunk-by-chunk) puede fallar en docume
 ### Flujo de trabajo
 
 ```
-1. extract_divi_text / extract_wordpress_text  →  Recibir texto con marcadores
+1. extract_divi_text / extract_wordpress_text  →  Recibir extractionId + texto con marcadores
 2. Traducir el texto (SIN llamar herramientas)
-3. submit_bulk_translation                      →  Enviar traduccion completa
+3. submit_bulk_translation(extractionId, texto) →  Enviar traduccion completa
 ```
+
+### IMPORTANTE: extractionId
+
+Cada extraccion devuelve un `extractionId` unico (ej: `41167e5c31ab74c1`).
+DEBES usar este ID al llamar `submit_bulk_translation`.
 
 ### Prompt ejemplo para archivo
 
@@ -91,13 +96,22 @@ Tu traduccion debe mantener los marcadores:
 
 | Tool | Uso | Descripcion |
 |------|-----|-------------|
-| `extract_divi_text` | BULK | Extrae texto de archivo con marcadores |
-| `extract_wordpress_text` | BULK | Extrae texto de WordPress con marcadores |
-| `submit_bulk_translation` | BULK | Recibe traduccion y guarda resultado |
+| `extract_divi_text` | BULK | Extrae texto de archivo, devuelve extractionId + texto |
+| `extract_wordpress_text` | BULK | Extrae texto de WordPress, devuelve extractionId + texto |
+| `submit_bulk_translation` | BULK | Recibe extractionId + traduccion, guarda resultado |
 | `get_translation_status` | Info | Muestra progreso actual |
 | `start_divi_translation` | Legacy | NO USAR - puede fallar |
 | `start_wordpress_translation` | Legacy | NO USAR - puede fallar |
 | `submit_translation` | Legacy | NO USAR |
+
+### Parametros de submit_bulk_translation
+
+```json
+{
+  "extractionId": "41167e5c31ab74c1",
+  "translatedText": "{{CHUNK_001}}\n<p>Texto traducido...</p>\n{{/CHUNK_001}}"
+}
+```
 
 ## Codigos de idioma comunes
 

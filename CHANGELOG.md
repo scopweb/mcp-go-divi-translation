@@ -2,6 +2,28 @@
 
 Todos los cambios notables de este proyecto se documentan en este archivo.
 
+## [4.1.0] - 2025-01-18
+
+### Agregado
+
+- **extractionId**: Cada extraccion ahora tiene un ID unico para identificar la sesion
+- **Soporte multi-sesion**: Multiples extracciones pueden ejecutarse en paralelo
+- **Almacenamiento global**: Las sesiones se guardan en memoria con mutex para thread-safety
+
+### Cambiado
+
+- `extract_divi_text` y `extract_wordpress_text` ahora devuelven `extractionId` en la respuesta
+- `submit_bulk_translation` ahora requiere `extractionId` como parametro obligatorio
+- Mensajes de respuesta incluyen el `extractionId` para facilitar el seguimiento
+
+### Beneficios
+
+- Claude Desktop puede referenciar la sesion por ID en lugar de depender del estado del servidor
+- Mas robusto ante desconexiones o errores
+- Preparado para traducciones en paralelo
+
+---
+
 ## [4.0.0] - 2025-01-18
 
 ### Agregado

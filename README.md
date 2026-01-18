@@ -1,4 +1,4 @@
-# MCP Divi Translator v4.0
+# MCP Divi Translator v4.1
 
 Servidor MCP para Claude Desktop que traduce páginas Divi (shortcodes `[et_*]`) sin romper la estructura.
 
