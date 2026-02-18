@@ -55,6 +55,3 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
-
-# Empty docs folder
-docs/
