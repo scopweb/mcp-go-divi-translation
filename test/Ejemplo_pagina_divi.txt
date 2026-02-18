@@ -1,139 +1,37 @@
-[et_pb_section fb_built="1" _builder_version="4.16" global_colors_info="{}"][et_pb_row _builder_version="4.16" background_size="initial" background_position="top_left" background_repeat="repeat" custom_margin="||0px||false|false" custom_padding="||0px||false|false" collapsed="off" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.16" custom_padding="|||" global_colors_info="{}" custom_padding__hover="|||"][et_pb_text admin_label="H1" _builder_version="4.27.4" background_size="initial" background_position="top_left" background_repeat="repeat" min_height="70px" custom_margin="||0px||false|false" custom_padding="||0px||false|false" z_index_tablet="500" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" global_colors_info="{}"]<p class="p1"><span class="s1" style="font-size: xx-large; color: #000000;"><strong>Chambres d'enfants et d'ados</strong> concevez sur mesure la chambre dont votre enfant rêve</span></p>[/et_pb_text][et_pb_text admin_label="Texto desplegable" module_class="desplegable" _builder_version="4.27.4" background_size="initial" background_position="top_left" background_repeat="repeat" custom_margin="||0px||false|false" custom_padding="||0px||false|false" z_index_tablet="500" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" locked="off" global_colors_info="{}"]<p>Chez jotajotape, vous trouverez des meubles design que vous pouvez faire sur mesure selon chaque besoin, des meubles pensés pour les bébés, les enfants, les adolescents, et même les adultes.</p>
-<p>Des <em>chambres d'enfants et d'ados</em> que vous pouvez combiner en couleurs, qui sont polyvalentes, imaginatives, personnalisables et surtout très très fonctionnelles.</p>
-<p><strong>Si c'est ce dont VOUS avez besoin, vous êtes à l'endroit idéal !</strong></p>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" background_size="initial" background_position="top_left" background_repeat="repeat" width="100%" max_width="2260px" module_alignment="center" custom_margin="0px|||" custom_padding="0px|||" z_index_tablet="500" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" locked="off" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.16" custom_padding="|||" global_colors_info="{}" custom_padding__hover="|||"][et_pb_text admin_label="PINTEREST" _builder_version="4.16" background_size="initial" background_position="top_left" background_repeat="repeat" width="100%" max_width="100%" custom_margin="|0px||0px|false|false" z_index_tablet="500" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" global_colors_info="{}"]<p style="text-align: center;">[scp_pinterest]</p>
-[/et_pb_text][et_pb_image src="https://fr.jotajotape.com/wp-content/uploads/2025/03/pixel.png" alt="Pixel" title_text="Pixel" show_in_lightbox="on" _builder_version="4.27.4" _module_preset="default" global_colors_info="{}"][/et_pb_image][/et_pb_column][/et_pb_row][et_pb_row disabled_on="on|on|on" _builder_version="4.27.4" background_size="initial" background_position="top_left" background_repeat="repeat" max_width="768px" disabled="on" collapsed="off" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.16" custom_padding="|||" global_colors_info="{}" custom_padding__hover="|||"][et_pb_text admin_label="Texto" _builder_version="4.27.4" background_size="initial" background_position="top_left" background_repeat="repeat" vertical_offset_tablet="0" horizontal_offset_tablet="0" z_index_tablet="500" text_text_shadow_horizontal_length_tablet="0px" text_text_shadow_vertical_length_tablet="0px" text_text_shadow_blur_strength_tablet="1px" link_text_shadow_horizontal_length_tablet="0px" link_text_shadow_vertical_length_tablet="0px" link_text_shadow_blur_strength_tablet="1px" ul_text_shadow_horizontal_length_tablet="0px" ul_text_shadow_vertical_length_tablet="0px" ul_text_shadow_blur_strength_tablet="1px" ol_text_shadow_horizontal_length_tablet="0px" ol_text_shadow_vertical_length_tablet="0px" ol_text_shadow_blur_strength_tablet="1px" quote_text_shadow_horizontal_length_tablet="0px" quote_text_shadow_vertical_length_tablet="0px" quote_text_shadow_blur_strength_tablet="1px" header_text_shadow_horizontal_length_tablet="0px" header_text_shadow_vertical_length_tablet="0px" header_text_shadow_blur_strength_tablet="1px" header_2_text_shadow_horizontal_length_tablet="0px" header_2_text_shadow_vertical_length_tablet="0px" header_2_text_shadow_blur_strength_tablet="1px" header_3_text_shadow_horizontal_length_tablet="0px" header_3_text_shadow_vertical_length_tablet="0px" header_3_text_shadow_blur_strength_tablet="1px" header_4_text_shadow_horizontal_length_tablet="0px" header_4_text_shadow_vertical_length_tablet="0px" header_4_text_shadow_blur_strength_tablet="1px" header_5_text_shadow_horizontal_length_tablet="0px" header_5_text_shadow_vertical_length_tablet="0px" header_5_text_shadow_blur_strength_tablet="1px" header_6_text_shadow_horizontal_length_tablet="0px" header_6_text_shadow_vertical_length_tablet="0px" header_6_text_shadow_blur_strength_tablet="1px" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" global_colors_info="{}"]<h2 style="text-align: center;"> Modern Junior bedrooms where <strong>YOU decide the design and the colours</strong></h2>
-<div id="attachment_14543" class="wp-caption aligncenter" style="width: 1034px;">
-<p><a class="popupgaleria" href="https://fr.jotajotape.com/junior-bedrooms/dormitorios-juveniles-74/"><img class="alignnone wp-image-14543 size-medium_large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil-768x620.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil-500x403.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil-768x620.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil-793x640.jpg 793w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-sistema-paneles-camas-nest-dormitorio-infantil-390x315.jpg 390w" alt="Dos camas en paralelo con una combinación de colores divertida en los diferentes muebles de la colección NEST" width="768" height="620" aria-describedby="caption-attachment-14543" /></a></p>
-<p id="caption-attachment-14543" class="wp-caption-text"><span class="s1">Junior furniture combined with an endless list of colours to provide a modern look for the modern-day home.</span></p>
-</div>
-<p class="p1"><span class="s1">The design of a junior bedroom needs to suit your child’s needs. Remember that it’s the part of the house where they’re going to spend the majority of their time, whether that’s sleeping, playing or studying. </span></p>
-<p class="p1"><span class="s1">Colour choices are fundamental, that’s why you will find an endless amount of wood colours in the <b>Infinity 02</b> catalogue where you can mix and match as you wish.</span></p>
-<p> <span style="font-size: 15px;"> </span></p>
-<blockquote><p class="p1"><span class="s1">Colours make furniture much more fun</span></p>
-</blockquote>
-<p>&nbsp;</p>
-<p class="p1"><span class="s1">As children change and grow, it’s important to make a good decision when it comes to both style and colour. In the different collections of this catalogue you will find a large array of designs to fit any need.</span></p>
-<p class="p1"><span class="s1">Having a modern junior room is extremely easy with the Infinity 02 catalogue thanks to the quantity and variety of furniture that there is. Find the design that you need…</span></p>
-<p>&nbsp;</p>
-<h3>Wardrobe, bed, book shelf, bunk-bed... everything is possible in this catalogue</h3>
-<p class="p1"><span class="s1">Every single piece of furniture in a junior bedroom is vital as they all serve an important function, from having a good, cosy bed to having a space where you can paint or play.</span></p>
+[et_pb_section fb_built="1" _builder_version="4.16" global_colors_info="{}"][et_pb_row _builder_version="4.16"][et_pb_column type="4_4" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h1>Modern Furniture Design Solutions</h1>
+<p>Welcome to our furniture collection. We create beautiful, functional pieces that transform your living space into a comfortable home.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.16" background_color="#f5f5f5"][et_pb_row _builder_version="4.16"][et_pb_column type="4_4" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h2>Why Choose Our Furniture?</h2>
+<p>Our collection offers timeless designs with endless customization options. Every piece is carefully crafted to combine style with functionality.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.16"][et_pb_row column_structure="1_3,1_3,1_3" _builder_version="4.16"][et_pb_column type="1_3" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h3>Premium Design</h3>
+<p>Elegant aesthetics combined with modern functionality. Our designers create pieces that look beautiful in any home.</p>[/et_pb_text][/et_pb_column][et_pb_column type="1_3" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h3>Custom Colors</h3>
+<p>Choose from hundreds of color combinations to match your personal style and home decor perfectly.</p>[/et_pb_text][/et_pb_column][et_pb_column type="1_3" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h3>Durable Quality</h3>
+<p>Built to last with high-quality materials and expert craftsmanship for years of enjoyment.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.16"][et_pb_row _builder_version="4.16"][et_pb_column type="4_4" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h2>Featured Collections</h2>
+<p>Explore our curated collections designed for different styles and spaces.</p>
+
+<h3>Living Room Furniture</h3>
+<p>Create a welcoming living space with our sofa and seating options available in multiple configurations and colors.</p>
+
+<h3>Bedroom Collection</h3>
+<p>Sleep in comfort with our bed frames, nightstands, and bedroom storage solutions designed for relaxation.</p>
+
+<h3>Office Furniture</h3>
+<p>Professional workspaces deserve furniture that combines comfort with productivity. Our desks and chairs are perfect for home and office use.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.16" background_color="#ffffff"][et_pb_row _builder_version="4.16"][et_pb_column type="4_4" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h2>Color Inspiration</h2>
+<p>Our furniture comes in a wide range of colors to suit any interior design preference:</p>
+
 <ul>
-<li class="li1"><span class="s2">A great wardrobe so you can have everything nicely organised. </span></li>
-<li class="li1"><span class="s2">The beds, pull-out beds, wall-beds and bunk-beds allows comfort, especially with a good mattress. </span></li>
-<li class="li1"><span class="s2">Having a great study space with tables, chairs and other furniture; perfect for homework and play. </span></li>
-<li class="li1"><span class="s2">A bunk-bed that doesn’t take up much space and can be truly original.</span></li>
-<li class="li2"><span class="s2">Cupboards and shelves that can give a different touch and style to your bedroom.</span></li>
-</ul>
-<blockquote><p class="p1"><span class="s1">Fun and functional furniture designed for the younger ones of the house</span></p>
-</blockquote>
-<p>&nbsp;</p>
-<h3><strong>Furniture designed for sharing a bedroom</strong></h3>
-<p class="p1"><span class="s1">When a bedroom needs to be shared between siblings, you always try to choose the best options with the space you have.</span></p>
-<p class="p1"><span class="s1">There are various practical options if space is an issue in your home:</span></p>
-<ul>
-<li class="li1"><span class="s2">One option would be our wall-beds, which transforms a bedroom into a space to study, play and sleep. </span></li>
-<li class="li2"><span class="s2">The other option are our pull-out beds, which provides you with an extra bed. </span><span style="font-size: 15px;">.</span></li>
-</ul>
-<p class="p1"><span class="s1">With Infinity 02, you are able to fit different size mattresses to increase the comfort and sleep of your young ones.</span></p>
-<p>&nbsp;</p>
-<h2><strong>Decorated junior bedrooms</strong> that reflects character</h2>
-<p>&nbsp;</p>
-<p><img class="size-large wp-image-14496" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-estudio-loft-cama-sistema-nest-1024x826.jpg" alt="La cama NEST hace de separación entre los dos ambientes de este loft" width="1024" height="826" /></p>
-<p class="p1"><span class="s1">When decorating a junior bedroom, you are creating the ideal environment</span></p>
-<p><span style="font-size: 15px;"> </span></p>
-<blockquote><p class="p1"><span class="s1">Playing with colours can be the decorative touch that a junior bedroom needs</span></p>
-</blockquote>
-<p>&nbsp;</p>
-<p class="p1"><span class="s1">You may find more comfort in one of our upholstered headboards. </span></p>
-<p class="p1"><span class="s1">JJP’s junior furniture can be personalised and decorated so it can easily fit and suit the rest of the room.</span></p>
-<p class="p1"><span class="s1">The restless kids need a space to play, the creative kids need a space to let their imagination flourish, the calm kids need soft colours, the twin siblings need to share a bedroom comfortably…</span></p>
-<p>&nbsp;</p>
-<h2><b>The white-coloured junior furniture will create a greater sense of space</b><span style="font-size: 15px; color: #666666;"> </span></h2>
-<p>&nbsp;</p>
-<p class="p1"><span class="s1">The colour white in junior furniture will make the room feel bigger and will compliment different colour combinations.</span></p>
-<p class="p1"><span class="s1"><b>If the furniture is white, take a risk with walls that are full of life</b> with paintings, pictures, canvases, prints… everything is possible, just let your imagination flourish.</span></p>
-<p class="p1"><span class="s1">It can be difficult to choose the right colour of furniture for a junior room. Many times we ask ourselves, “what colours work better?” It seems like a difficult task, but it really isn’t when you choose JJP’s junior furniture in white. </span></p>
-<div id="attachment_14487" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14487 size-large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco-1024x722.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco-500x353.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco-768x542.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco-908x640.jpg 908w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-nest-color-blanco-390x275.jpg 390w" alt="Dormitorio Juvenil minimalista con muebles de la colección NEST" width="1024" height="722" aria-describedby="caption-attachment-14487" /></p>
-<p id="caption-attachment-14487" class="wp-caption-text">A piece of junior furniture in white gives a sense of peace, tranquilty and harmony</p>
-</div>
-<p class="p1"><span class="s1">In this <b>NEST youth bedroom</b> you can see all the information and details much better.</span></p>
-<h3><strong>You can create the colour combination of your choice for your furniture</strong></h3>
-<p class="p1"><span class="s1">Colours can show a part of our personality, that’s why it’s so important to choose correctly.</span></p>
-<p class="p1"><span class="s1">Colour combinations in JJP’s furniture are endless, so here are some tips:</span></p>
-<p>&nbsp;</p>
-<ul>
-<li class="li1"><span class="s2"><b>Cold colours</b> like Blue create a relaxing environment</span></li>
-<li class="li1"><span class="s2"><b>Earthy colours</b> like Brown or Beige allows you to connect with nature</span></li>
-<li class="li1"><span class="s2"><b>Warm colours</b> like Orange create a happy and positive environment </span></li>
-<li class="li1"><span class="s2"><b>Neutral colours</b> like Grey create a more comfortable and calm environment</span></li>
-</ul>
-<p>&nbsp;</p>
-<p style="text-align: center;"><img class="size-full wp-image-14985 aligncenter" style="font-weight: bold;" src="https://fr.jotajotape.com/wp-content/uploads/2019/07/couleurs-lisses-jeunes-armoires-jotajotape.png" alt="Couleurs unies des collections Infinity02 et NOLIMITS+" width="832" height="208" />Smooth colours from our Infinity02 and NOLIMITS+ collections</p>
-<p> <span style="font-size: 15px;">With this colour palette you will be able to create an endless amount of colour combinations in our </span><b style="font-size: 15px;">Infinity 02</b><span style="font-size: 15px;"> catalogue. Remember that the colour white can be used with any colour!</span></p>
-<p>&nbsp;</p>
-<h2><strong>Junior bedrooms with a bunk-bed </strong>is always a fun option</h2>
-<div id="attachment_14418" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="size-large wp-image-14418" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes-1024x827.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes-500x404.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes-768x620.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes-792x640.jpg 792w, https://fr.jotajotape.com/wp-content/uploads/2019/06/litera-con-toldo-escalera-estantes-390x315.jpg 390w" alt="Litera con toldo y escalera hecha con estantes" width="1024" height="827" aria-describedby="caption-attachment-14418" /></p>
-<p id="caption-attachment-14418" class="wp-caption-text">It's so easy for your kids to have fun furniture with the Infinity02 catalogue</p>
-</div>
-<p class="p1"><span class="s1">A great new feature in this catalogue is the <b>Cabaña bunk-bed</b>, which has a design that ignites the excitement and imagination of any kid, allowing them to create great adventures and endless stories.</span></p>
-<p class="p1"><span class="s1">Another one of our new features is the <b>Fort bunk-bed</b>, that has a simple structured design that creates a robust appearance and allows you to make the most out of the space with two beds in one.</span></p>
-<p class="p1"><span class="s1">This bunk-bed needs a ladder to access the top bed. You can choose from a variety of different styles. Some of them have also been designed to serve as a storage space, similar to a shelving unit or drawers.</span></p>
-<p class="p1"><span class="s1">To ensure complete security while sleeping, all bunk-beds have a top structure that serves as a protective feature.</span></p>
-<p>&nbsp;</p>
-<h2><strong>Junior furniture with a desktop</strong>, there are so many designs to choose from</h2>
-<div id="attachment_14454" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="size-large wp-image-14454" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon-1024x1226.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon-500x599.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon-768x920.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon-535x640.jpg 535w, https://fr.jotajotape.com/wp-content/uploads/2019/06/detalle-mesa-estudio-bandeja-extensible-arcon-390x467.jpg 390w" alt="Bandeja inferior extraíble en el arcón, para que sea más fácil acceder a su interior" width="1024" height="1226" aria-describedby="caption-attachment-14454" /><span style="font-size: 12px;">A pull-out table for whenever you need it </span></p>
-</div>
-<p class="p1"><span class="s1">It may sound simple, but the table and chair in your kid’s room is vital to ensure a comfortable space where they can study, draw, do arts and crafts…</span></p>
-<p class="p1"><span class="s1">Here you can find the furniture you need! The newest addition is the pull-out table, which comes with a base on wheels. When closed, it blends perfectly into the headboard of the bed and when opened, it turns into an extremely practical study desk.</span></p>
-<p class="p1"><span class="s1">For a more minimalistic design, our wall-hung tables is another option from our <b>Infinity 02</b> catalogue.</span></p>
-<p class="p1"><span class="s1">With many different designs of tables, you will be able to find one that suits you. </span></p>
-<p><span style="font-size: 15px;"> </span></p>
-<h3><strong>The Tech and Cubis tables - create a more functional and versatile study area</strong></h3>
-<p class="p1"><span class="s1">The<b> Cubis Table </b>is made completely out of wood and comes in many different colours and sizes to suit any space. </span></p>
-<p class="p1"><span class="s1">Another new feature for your study area is the <b>Tech table.</b> It has a metal structure that comes with accessories so you can fit your tablet and backpack. </span></p>
-<div id="attachment_14449" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14449 size-large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila-1024x1234.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila-500x603.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila-768x926.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila-531x640.jpg 531w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-tech-soporte-tablet-mochila-390x470.jpg 390w" alt="La mesa estudio TECH es muy funcional y ligera para que la coloques donde tu quieras" width="1024" height="1234" aria-describedby="caption-attachment-14449" /></p>
-<p id="caption-attachment-14449" class="wp-caption-text">The study desk TECH is extremely functional and light so you can place it wherever suits you best</p>
-</div>
-<p>&nbsp;</p>
-<div id="attachment_14448" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14448 size-large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina-1024x1255.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina-500x613.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina-768x941.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina-522x640.jpg 522w, https://fr.jotajotape.com/wp-content/uploads/2019/06/mesa-estudio-cubist-color-mandarina-390x478.jpg 390w" alt="¿Zona estudio o pequeño despacho? tu decides que uso le das a la mesa Cubist" width="1024" height="1255" aria-describedby="caption-attachment-14448" /></p>
-<p id="caption-attachment-14448" class="wp-caption-text">Study desk or small office? You choose what you use the Cubis table for!</p>
-</div>
-<p>&nbsp;</p>
-<blockquote><p class="p1"><span class="s1">Different design options for add-on tables to help you create a great functional study space…</span></p>
-</blockquote>
-<p>&nbsp;</p>
-<h3><strong>We present to you FLAT, a small revolution for restless minds</strong></h3>
-<p class="p1"><span class="s1">The FLAT system resembles a puzzle, where every piece fits perfectly. Every single piece is hung on a grid-like system on your wall. This gives you freedom to be creative. </span></p>
-<p class="p1"><span class="s1">We have a headboard that can be used as part of the FLAT system. It’s very original and different.</span></p>
-<p class="p1"><span class="s1"><b>A desk with only 15cm of depth</b> has been created to fit into any narrow space. </span></p>
-<p class="p1"><span class="s1">If you have tonnes of ideas in your head and not a lot of space, <b>FLAT IS THE SOLUTION!</b></span></p>
-<div id="attachment_14468" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14468 size-large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese-1024x765.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese-500x374.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese-768x574.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese-857x640.jpg 857w, https://fr.jotajotape.com/wp-content/uploads/2019/06/dormitorio-juvenil-flat-colores-noir-veronese-390x291.jpg 390w" alt="Combina el dormitorio juvenil con los muebles de la colección FLAT" width="1024" height="765" aria-describedby="caption-attachment-14468" /></p>
-<p id="caption-attachment-14468" class="wp-caption-text">Combine your junior bedroom with furniture from the FLAT collection</p>
-</div>
-<p>&nbsp;</p>
-<blockquote><p class="p1"><span class="s1">With the FLAT system you’re going to have a very original and personalised room</span></p>
-</blockquote>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<h2><strong><em>Junior bedrooms</em> with two beds</strong>, we offer you different solutions</h2>
-<div id="attachment_14541" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14541 size-large" title="Dormitorios juveniles con dos camas en paralelo de la colección NEST" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest-1024x825.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest-500x403.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest-768x619.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest-794x640.jpg 794w, https://fr.jotajotape.com/wp-content/uploads/2019/06/habitacion-dos-camas-paralelas-coleccion-nest-390x314.jpg 390w" alt="Dormitorios juveniles con dos camas en paralelo de la colección NEST" width="1024" height="825" aria-describedby="caption-attachment-14541" /></p>
-<p id="caption-attachment-14541" class="wp-caption-text">A bedroom for two siblings that has a large array of storage options and colour combinations are endless</p>
-</div>
-<p>With the <strong>Nest collection, </strong><span class="s1">you’ve got an incredible amount of possibilities for a junior bedroom for two, where you’ll be able to decorate and personalise to match style and personality.</span></p>
-<p class="p1"><span class="s1">You can choose to have the beds parallel or perpendicular, depending on the space of the bedroom.</span></p>
-<h3>Furniture that adapts to the ages of your kids</h3>
-<p class="p1"><span class="s1"><b>The Grow bed, that adapts to the different ages of children,</b> is the perfect solution when the junior bedroom is being shared by siblings of different ages.</span></p>
-<p>&nbsp;</p>
-<div id="attachment_14404" class="wp-caption alignnone" style="width: 1034px;">
-<p><img class="wp-image-14404 size-large" src="https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades-1024x668.jpg" sizes="(max-width: 1024px) 100vw, 1024px" srcset="https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades.jpg 1024w, https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades-500x326.jpg 500w, https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades-768x501.jpg 768w, https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades-981x640.jpg 981w, https://fr.jotajotape.com/wp-content/uploads/2019/06/camas-adaptables-grow-diferentes-edades-390x254.jpg 390w" alt="Habitación infantil y juvenil con dos camas adaptables de la colección GROW" width="1024" height="668" aria-describedby="caption-attachment-14404" /></p>
-<p id="caption-attachment-14404" class="wp-caption-text">Kids and junior bedrooms with two adaptable beds from the Grow collection</p>
-</div>[/et_pb_text][et_pb_text admin_label="Cita Final" module_class="citafinal" _builder_version="4.16" background_size="initial" background_position="top_left" background_repeat="repeat" z_index_tablet="500" box_shadow_horizontal_tablet="0px" box_shadow_vertical_tablet="0px" box_shadow_blur_tablet="40px" box_shadow_spread_tablet="0px" global_colors_info="{}"]<blockquote>
-<h3><b>You will be able to interact with your junior bedroom, </b>storing objects in unpredictable spaces</h3>
-</blockquote>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+<li><strong>Neutral Tones</strong> - White, Grey, Beige for timeless elegance</li>
+<li><strong>Warm Colors</strong> - Oak, Walnut, Cherry for natural warmth</li>
+<li><strong>Modern Shades</strong> - Matte Black, Navy Blue, Charcoal</li>
+<li><strong>Bright Colors</strong> - Available for accent pieces and custom orders</li>
+</ul>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.16"][et_pb_row _builder_version="4.16"][et_pb_column type="4_4" _builder_version="4.16"][et_pb_text _builder_version="4.16"]<h2>Contact Us Today</h2>
+<p>Ready to transform your space? Get in touch with our design team for personalized recommendations.</p>
+
+<p>Email: info@example.com | Phone: +1 (555) 123-4567 | Web: www.example.com</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]

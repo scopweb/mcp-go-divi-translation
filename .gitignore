@@ -27,6 +27,9 @@ go.work.sum
 
 # Claude Code local settings
 .claude/
+.agent/
+.agents/
+.mcp.json
 
 # Environment variables (contain secrets)
 .env
