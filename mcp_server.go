@@ -13,6 +13,8 @@ import (
 )
 
 // MCP JSON-RPC types
+const MCP_PROTOCOL_VERSION = "2025-11-25"
+
 type JSONRPCRequest struct {
 	JSONRPC string          `json:"jsonrpc"`
 	ID      interface{}     `json:"id,omitempty"`
@@ -25,6 +27,11 @@ type JSONRPCResponse struct {
 	ID      interface{} `json:"id,omitempty"`
 	Result  interface{} `json:"result,omitempty"`
 	Error   *RPCError   `json:"error,omitempty"`
+	Meta    *ResponseMeta `json:"_meta,omitempty"`
+}
+
+type ResponseMeta struct {
+	Protocol string `json:"protocol"`
 }
 
 type RPCError struct {
@@ -141,6 +148,7 @@ type MCPServer struct {
 	session     *TranslationSession     // Estado de la sesion actual (legacy)
 	bulkSession *BulkTranslationSession // Estado de la sesion bulk (optimizado)
 	wpDB        *WordPressDB            // Conexion WordPress (lazy init)
+	shouldShutdown bool                 // Flag para graceful shutdown
 }
 
 func NewMCPServer() *MCPServer {
@@ -155,7 +163,26 @@ func (s *MCPServer) log(format string, args ...interface{}) {
 	fmt.Fprintf(s.stderr, "[MCP] "+format+"\n", args...)
 }
 
+// validateRequestID ensures ID is a string or integer (not null)
+func isValidRequestID(id interface{}) bool {
+	if id == nil {
+		return false // MCP spec: null IDs are not allowed
+	}
+	switch id.(type) {
+	case string, float64, int, int64:
+		return true
+	default:
+		return false
+	}
+}
+
 func (s *MCPServer) writeResponse(resp JSONRPCResponse) error {
+	// Ensure _meta is set with protocol version
+	if resp.Meta == nil && resp.Error == nil {
+		resp.Meta = &ResponseMeta{
+			Protocol: MCP_PROTOCOL_VERSION,
+		}
+	}
 	data, err := json.Marshal(resp)
 	if err != nil {
 		return err
@@ -180,11 +207,11 @@ func (s *MCPServer) getWordPressDB() (*WordPressDB, error) {
 
 func (s *MCPServer) handleInitialize(req JSONRPCRequest) {
 	result := InitializeResult{
-		ProtocolVersion: "2024-11-05",
+		ProtocolVersion: MCP_PROTOCOL_VERSION,
 	}
 	result.Capabilities.Tools = map[string]interface{}{}
 	result.ServerInfo.Name = "divi-translator"
-	result.ServerInfo.Version = "4.1.0"
+	result.ServerInfo.Version = "4.3.0"
 
 	s.writeResponse(JSONRPCResponse{
 		JSONRPC: "2.0",
@@ -1766,6 +1793,32 @@ Progreso: %d/%d chunks (%d%%)`,
 	})
 }
 
+func (s *MCPServer) handlePing(req JSONRPCRequest) {
+	// Respond to ping request (keepalive)
+	s.writeResponse(JSONRPCResponse{
+		JSONRPC: "2.0",
+		ID:      req.ID,
+		Result:  map[string]interface{}{},
+	})
+}
+
+func (s *MCPServer) handleShutdown(req JSONRPCRequest) {
+	// Clean up WordPress connection if exists
+	if s.wpDB != nil {
+		s.wpDB.Close()
+	}
+
+	// Respond to shutdown request
+	s.writeResponse(JSONRPCResponse{
+		JSONRPC: "2.0",
+		ID:      req.ID,
+		Result:  map[string]interface{}{},
+	})
+
+	// Signal that server should exit
+	s.shouldShutdown = true
+}
+
 func (s *MCPServer) Run() {
 	scanner := bufio.NewScanner(s.stdin)
 	// Increase buffer size for large inputs
@@ -1784,15 +1837,33 @@ func (s *MCPServer) Run() {
 			continue
 		}
 
+		// Validate request ID per MCP spec: ID must be string or integer, not null
+		if req.ID != nil && !isValidRequestID(req.ID) {
+			s.writeResponse(JSONRPCResponse{
+				JSONRPC: "2.0",
+				ID:      nil,
+				Error: &RPCError{
+					Code:    -32600,
+					Message: "Invalid Request: ID must be a string or integer, not null or other types",
+				},
+			})
+			continue
+		}
+
 		s.log("Received method: %s", req.Method)
 
 		switch req.Method {
 		case "initialize":
 			s.handleInitialize(req)
+		case "shutdown":
+			s.handleShutdown(req)
+			return // Exit gracefully after shutdown
 		case "tools/list":
 			s.handleListTools(req)
 		case "tools/call":
 			s.handleCallTool(req)
+		case "ping":
+			s.handlePing(req)
 		case "notifications/initialized":
 			// Client notification, no response needed
 		default:
@@ -1806,6 +1877,11 @@ func (s *MCPServer) Run() {
 					},
 				})
 			}
+		}
+
+		// Check if shutdown was requested
+		if s.shouldShutdown {
+			return
 		}
 	}
 
