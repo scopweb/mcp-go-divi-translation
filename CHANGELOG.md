@@ -2,6 +2,24 @@
 
 Todos los cambios notables de este proyecto se documentan en este archivo.
 
+## [4.3.0] - 2025-02-18
+
+### Agregado
+
+- **server_info**: Nueva herramienta que devuelve informacion del servidor
+  - Version del servidor y protocolo MCP
+  - Estado de conexion MySQL
+  - Configuracion activa (enmascarada)
+  - Sesiones activas
+  - Lista de tools disponibles
+
+### Corregido
+
+- Compatibilidad con Claude Desktop: Removidos campos `_meta` de respuestas JSON-RPC que causaban errores de validacion
+- Simplificada estructura de respuestas para cumplir con validacion strict de Claude Desktop
+
+---
+
 ## [4.2.0] - 2025-01-18
 
 ### Agregado
