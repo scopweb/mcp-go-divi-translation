@@ -27,12 +27,8 @@ type JSONRPCResponse struct {
 	ID      interface{} `json:"id,omitempty"`
 	Result  interface{} `json:"result,omitempty"`
 	Error   *RPCError   `json:"error,omitempty"`
-	Meta    *ResponseMeta `json:"_meta,omitempty"`
 }
 
-type ResponseMeta struct {
-	Protocol string `json:"protocol"`
-}
 
 type RPCError struct {
 	Code    int    `json:"code"`
@@ -177,12 +173,6 @@ func isValidRequestID(id interface{}) bool {
 }
 
 func (s *MCPServer) writeResponse(resp JSONRPCResponse) error {
-	// Ensure _meta is set with protocol version
-	if resp.Meta == nil && resp.Error == nil {
-		resp.Meta = &ResponseMeta{
-			Protocol: MCP_PROTOCOL_VERSION,
-		}
-	}
 	data, err := json.Marshal(resp)
 	if err != nil {
 		return err
@@ -331,6 +321,14 @@ func (s *MCPServer) handleListTools(req JSONRPCRequest) {
 			},
 		},
 		{
+			Name:        "server_info",
+			Description: "Devuelve informacion del servidor: version, estado de conexion MySQL, configuracion activa y tools disponibles.",
+			InputSchema: map[string]interface{}{
+				"type":       "object",
+				"properties": map[string]interface{}{},
+			},
+		},
+		{
 			Name:        "submit_bulk_translation",
 			Description: "Recibe extractionId y texto traducido (con marcadores {{CHUNK_XXX}}), reensambla y guarda el documento.",
 			InputSchema: map[string]interface{}{
@@ -387,6 +385,8 @@ func (s *MCPServer) handleCallTool(req JSONRPCRequest) {
 		s.handleExtractWordPressText(req, params)
 	case "submit_bulk_translation":
 		s.handleSubmitBulkTranslation(req, params)
+	case "server_info":
+		s.handleServerInfo(req)
 	default:
 		s.writeResponse(JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -1789,6 +1789,97 @@ Progreso: %d/%d chunks (%d%%)`,
 				Type: "text",
 				Text: response,
 			}},
+		},
+	})
+}
+
+// maskString enmascara un string mostrando los primeros 4 chars y el resto como *
+func maskString(s, defaultVal string) string {
+	if s == "" {
+		s = defaultVal
+	}
+	if s == "" {
+		return "[no configurado]"
+	}
+	if len(s) <= 4 {
+		return s + "***"
+	}
+	return s[:4] + strings.Repeat("*", len(s)-4)
+}
+
+func (s *MCPServer) handleServerInfo(req JSONRPCRequest) {
+	// MySQL connection status
+	mysqlStatus := "OK"
+	mysqlDB := os.Getenv("WP_MYSQL_DATABASE")
+	if mysqlDB == "" {
+		mysqlDB = "(no configurado)"
+	}
+	wpDB, err := s.getWordPressDB()
+	if err != nil {
+		mysqlStatus = fmt.Sprintf("ERROR: %v", err)
+	} else {
+		if pingErr := wpDB.db.Ping(); pingErr != nil {
+			mysqlStatus = fmt.Sprintf("ERROR ping: %v", pingErr)
+		}
+	}
+
+	// Config activa (enmascarada)
+	host := maskString(os.Getenv("WP_MYSQL_HOST"), "localhost")
+	port := os.Getenv("WP_MYSQL_PORT")
+	if port == "" { port = "3306" }
+	tablePrefix := os.Getenv("WP_TABLE_PREFIX")
+	if tablePrefix == "" { tablePrefix = "wp_" }
+	backupDir := os.Getenv("WP_BACKUP_DIR")
+	if backupDir == "" { backupDir = "." }
+	mysqlDB = maskString(mysqlDB, "")
+
+	// Sesiones activas
+	extractionsMutex.RLock()
+	activeSessions := len(activeExtractions)
+	extractionsMutex.RUnlock()
+
+	info := fmt.Sprintf(`=== DIVI TRANSLATOR SERVER INFO ===
+Version:          4.3.0
+Protocol:         %s
+
+--- MySQL ---
+Status:           %s
+Host:             %s:%s
+Database:         %s
+Table Prefix:     %s
+
+--- Rutas ---
+Backup Dir:       %s
+
+--- Sesiones activas ---
+Bulk extractions: %d
+
+--- Tools disponibles ---
+  Bulk (recomendado):
+    extract_divi_text
+    extract_wordpress_text
+    submit_bulk_translation
+  Utilidad:
+    get_translation_status
+    server_info
+  Legacy (deprecated):
+    start_divi_translation
+    start_wordpress_translation
+    submit_translation`,
+		MCP_PROTOCOL_VERSION,
+		mysqlStatus,
+		host, port,
+		mysqlDB,
+		tablePrefix,
+		backupDir,
+		activeSessions,
+	)
+
+	s.writeResponse(JSONRPCResponse{
+		JSONRPC: "2.0",
+		ID:      req.ID,
+		Result: CallToolResult{
+			Content: []ContentItem{{Type: "text", Text: info}},
 		},
 	})
 }
