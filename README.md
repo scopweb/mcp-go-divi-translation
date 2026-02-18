@@ -29,7 +29,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/scp-divi-translation.git
+git clone https://github.com/scopweb/mcp-go-divi-translation.git
 cd scp-divi-translation
 
 # Build the server
@@ -300,14 +300,14 @@ brew install divi-translator
 ### Docker
 
 ```bash
-docker pull yourusername/divi-translator
-docker run -e WP_MYSQL_HOST=host.docker.internal yourusername/divi-translator
+docker pull scopweb/divi-translator
+docker run -e WP_MYSQL_HOST=host.docker.internal scopweb/divi-translator
 ```
 
 ### Linux
 
 ```bash
-curl -L https://github.com/yourusername/scp-divi-translation/releases/download/v4.3.0/divi-translator-linux-x64 -o divi-translator
+curl -L https://github.com/scopweb/mcp-go-divi-translation/releases/download/v4.3.0/divi-translator-linux-x64 -o divi-translator
 chmod +x divi-translator
 ./divi-translator
 ```
@@ -328,7 +328,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🙋 Support
 
 For issues, questions, or feature requests:
-- Open an [GitHub Issue](https://github.com/yourusername/scp-divi-translation/issues)
+- Open an [GitHub Issue](https://github.com/scopweb/mcp-go-divi-translation/issues)
 - Check [existing documentation](./docs)
 - Review [MCP specification](https://modelcontextprotocol.io/)
 
