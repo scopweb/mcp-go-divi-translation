@@ -27,7 +27,7 @@ The original post is never modified until you explicitly submit the translation.
 
 ## Database configuration
 
-The server connects using environment variables. Set these before starting Claude Desktop.
+The server connects using environment variables. Set these before starting your MCP client.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -53,7 +53,7 @@ The server connects using environment variables. Set these before starting Claud
     WP_BACKUP_DIR=/var/backups/divi-translations
     ```
   </TabItem>
-  <TabItem label="Claude Desktop config">
+  <TabItem label="MCP client config">
     Pass credentials via the `env` block in `claude_desktop_config.json`:
 
     ```json title="claude_desktop_config.json"
@@ -200,7 +200,7 @@ Backups are plain text and can be used to restore a post manually via the WordPr
 
 ## Remote databases
 
-The server can connect to any MySQL instance reachable from the machine running Claude Desktop. For a remote WordPress installation:
+The server can connect to any MySQL instance reachable from the machine running the MCP client. For a remote WordPress installation:
 
 ```ini title=".env"
 WP_MYSQL_HOST=mysql.example.com

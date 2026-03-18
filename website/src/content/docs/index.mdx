@@ -1,10 +1,10 @@
 ---
 title: Divi Translator MCP
-description: Automatic Divi page translation for Claude Desktop. Preserves all [et_*] shortcodes and HTML structure during translation.
+description: Automatic Divi page translation via MCP. Works with Claude Desktop, Claude Code, and any MCP-compatible client. Preserves all [et_*] shortcodes and HTML structure during translation.
 template: splash
 hero:
   title: Divi Translator MCP
-  tagline: Translate Divi pages from Claude Desktop. Shortcodes stay intact. HTML structure stays intact. Only the text changes.
+  tagline: Translate Divi pages from Claude Desktop or Claude Code. Shortcodes stay intact. HTML structure stays intact. Only the text changes.
   image:
     file: ../../assets/scopweb.png
   actions:
@@ -22,7 +22,7 @@ import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 
 ## What does it do?
 
-Divi Translator MCP is a server that connects to Claude Desktop via the [Model Context Protocol](https://modelcontextprotocol.io). Once installed, you can ask Claude to translate a Divi page — either from a file on disk or directly from a WordPress post — and the server handles everything: extracting translatable text, preserving the Divi shortcode structure, and writing the result back.
+Divi Translator MCP is a server that connects to any MCP client (Claude Desktop, Claude Code, or others) via the [Model Context Protocol](https://modelcontextprotocol.io). Once installed, you can ask Claude to translate a Divi page — either from a file on disk or directly from a WordPress post — and the server handles everything: extracting translatable text, preserving the Divi shortcode structure, and writing the result back.
 
 The server does not translate anything itself. Claude does the translation. The server extracts the text, keeps track of what must not be changed, and reassembles the final file.
 
@@ -60,7 +60,7 @@ The server accepts any IETF language code. Common codes used in Divi projects:
 
 ## Requirements
 
-- [Claude Desktop](https://claude.ai/download) (any plan)
+- An MCP client: [Claude Desktop](https://claude.ai/download), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), or any MCP-compatible tool
 - Go 1.21 or later — only if building from source
 - MySQL access — only for WordPress integration
 
@@ -69,5 +69,5 @@ The server accepts any IETF language code. Common codes used in Divi projects:
 Current version: **4.4.0** — MCP protocol 2025-11-25 compliant.
 
 <Aside type="note">
-  This server implements the Model Context Protocol specification dated 2025-11-25. It communicates with Claude Desktop over standard input/output (stdio transport).
+  This server implements the Model Context Protocol specification dated 2025-11-25. It communicates with any MCP client over standard input/output (stdio transport).
 </Aside>

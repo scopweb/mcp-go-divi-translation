@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install Divi Translator MCP and connect it to Claude Desktop in a few steps.
+description: Install Divi Translator MCP and connect it to Claude Desktop, Claude Code, or any MCP client.
 ---
 
 import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
@@ -9,7 +9,7 @@ import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
 
 | Requirement | Notes |
 |-------------|-------|
-| Claude Desktop | Free or Pro plan. Download at [claude.ai/download](https://claude.ai/download) |
+| MCP client | Claude Desktop, Claude Code, or any MCP-compatible client |
 | Go 1.21+ | Only needed if you build from source |
 | MySQL access | Only needed for WordPress integration |
 
@@ -34,14 +34,12 @@ A compiled Windows executable is included in the repository under `bin/divi-tran
 
    The executable is at `bin/divi-translator.exe`. Note the full path — you will need it in the next step.
 
-3. **Configure Claude Desktop**
+3. **Configure your MCP client**
 
-   Open (or create) your Claude Desktop configuration file:
+   **Claude Desktop** — open (or create) your configuration file:
 
    - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
    - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-   Add the server entry:
 
    ```json title="claude_desktop_config.json"
    {
@@ -54,11 +52,24 @@ A compiled Windows executable is included in the repository under `bin/divi-tran
    }
    ```
 
+   **Claude Code** — add a `.mcp.json` file in your project root:
+
+   ```json title=".mcp.json"
+   {
+     "mcpServers": {
+       "divi-translator": {
+         "command": "C:\\path\\to\\mcp-go-divi-translation\\bin\\divi-translator.exe",
+         "args": []
+       }
+     }
+   }
+   ```
+
    Replace `C:\\path\\to\\` with the actual path where you cloned the repository.
 
-4. **Restart Claude Desktop**
+4. **Restart your client**
 
-   Quit and reopen Claude Desktop. The server appears in the tools panel (hammer icon). You should see tools like `extract_divi_text` and `extract_wordpress_text` listed.
+   Restart Claude Desktop or reload your VS Code window (for Claude Code). You should see tools like `extract_divi_text` and `extract_wordpress_text` listed.
 
 </Steps>
 
@@ -89,9 +100,9 @@ Use this option on macOS, Linux, or if you prefer to compile yourself.
 
    This produces a `divi-translator` binary in the current directory.
 
-3. **Configure Claude Desktop**
+3. **Configure your MCP client** (same as Option 1 — use `claude_desktop_config.json` for Claude Desktop or `.mcp.json` for Claude Code)
 
-   ```json title="claude_desktop_config.json"
+   ```json
    {
      "mcpServers": {
        "divi-translator": {
@@ -102,9 +113,7 @@ Use this option on macOS, Linux, or if you prefer to compile yourself.
    }
    ```
 
-4. **Restart Claude Desktop**
-
-   Quit and reopen Claude Desktop.
+4. **Restart your client**
 
 </Steps>
 
@@ -130,7 +139,7 @@ To translate WordPress posts directly from the database, add your MySQL credenti
 
    The server loads this file automatically on startup.
 
-2. **Or pass credentials via the Claude Desktop config** using `env`:
+2. **Or pass credentials via the MCP client config** using `env`:
 
    ```json title="claude_desktop_config.json"
    {
@@ -152,7 +161,7 @@ To translate WordPress posts directly from the database, add your MySQL credenti
    }
    ```
 
-3. **Restart Claude Desktop** after saving the config.
+3. **Restart your MCP client** after saving the config.
 
 </Steps>
 
@@ -164,7 +173,7 @@ To translate WordPress posts directly from the database, add your MySQL credenti
 
 ## Verify the installation
 
-After restarting Claude Desktop, open a conversation and ask:
+After restarting your MCP client, open a conversation and ask:
 
 > "What tools do you have available from the divi-translator server?"
 
@@ -188,8 +197,8 @@ Active sessions: 0
 
 | Problem | Likely cause | Fix |
 |---------|-------------|-----|
-| Server does not appear in Claude Desktop | Wrong path in config | Use an absolute path and double-check the binary exists |
+| Server does not appear in client | Wrong path in config | Use an absolute path and double-check the binary exists |
 | Tools not listed after restart | Config JSON syntax error | Validate the JSON at [jsonlint.com](https://jsonlint.com) |
 | MySQL connection error | Wrong credentials or host | Check `.env` values; test MySQL connection separately |
-| `extract_wordpress_text` fails | MySQL not configured | Add database credentials and restart Claude Desktop |
+| `extract_wordpress_text` fails | MySQL not configured | Add database credentials and restart your MCP client |
 | Binary won't run on macOS | Gatekeeper block | Run `xattr -dr com.apple.quarantine divi-translator` |

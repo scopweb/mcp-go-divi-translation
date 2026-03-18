@@ -14,7 +14,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 | **Network** | None | The server has no outbound connections |
 | **System** | None | No shell commands, no process execution |
 
-The server does not make any HTTP requests. It communicates only via stdio with Claude Desktop and via MySQL with your database (if configured).
+The server does not make any HTTP requests. It communicates only via stdio with the MCP client (Claude Desktop, Claude Code, etc.) and via MySQL with your database (if configured).
 
 ---
 
@@ -38,7 +38,7 @@ WP_BACKUP_DIR=/path/to/backups
 
 The server loads this file automatically at startup. If the file is not found in the binary's directory, the server also checks the current working directory.
 
-### Option B — Claude Desktop config
+### Option B — MCP client config
 
 Pass credentials via the `env` block in `claude_desktop_config.json`:
 
@@ -59,7 +59,7 @@ Pass credentials via the `env` block in `claude_desktop_config.json`:
 ```
 
 <Aside type="caution">
-  The `claude_desktop_config.json` file is stored in your user profile directory. Do not commit it to version control. If you use a shared machine, prefer the `.env` file approach and restrict its permissions: `chmod 600 .env`.
+  MCP client config files (`claude_desktop_config.json`, `.mcp.json`) may contain credentials. Do not commit them to version control. If you use a shared machine, prefer the `.env` file approach and restrict its permissions: `chmod 600 .env`.
 </Aside>
 
 ---
