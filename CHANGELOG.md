@@ -1,48 +1,64 @@
 # Changelog
 
-Todos los cambios notables de este proyecto se documentan en este archivo.
+All notable changes to this project are documented in this file.
+
+## [4.4.0] - 2026-03-18
+
+### Added
+
+- **Claude Code support**: Works with Claude Desktop, Claude Code, and any MCP client
+- **Code refactoring**: Split `mcp_server.go` into `handlers.go`, `bulk_handlers.go`, `session.go`, `types.go`
+- **Standard error codes**: JSON-RPC 2.0 error codes (-32700, -32600, -32601, -32602, -32603)
+- **Documentation website**: Astro Starlight site in `website/`
+- **Unit tests**: Session and tokenizer tests
+
+### Fixed
+
+- **Capabilities negotiation**: Removed `omitempty` from tools field so MCP clients properly discover available tools
+
+---
 
 ## [4.3.0] - 2025-02-18
 
-### Agregado
+### Added
 
-- **server_info**: Nueva herramienta que devuelve informacion del servidor
-  - Version del servidor y protocolo MCP
-  - Estado de conexion MySQL
-  - Configuracion activa (enmascarada)
-  - Sesiones activas
-  - Lista de tools disponibles
+- **server_info**: New tool that returns server information
+  - Server version and MCP protocol
+  - MySQL connection status
+  - Active configuration (masked)
+  - Active sessions
+  - List of available tools
 
-### Corregido
+### Fixed
 
-- Compatibilidad con Claude Desktop: Removidos campos `_meta` de respuestas JSON-RPC que causaban errores de validacion
-- Simplificada estructura de respuestas para cumplir con validacion strict de Claude Desktop
+- Claude Desktop compatibility: Removed `_meta` fields from JSON-RPC responses that caused validation errors
+- Simplified response structure to comply with Claude Desktop's strict validation
 
 ---
 
 ## [4.2.0] - 2025-01-18
 
-### Agregado
+### Added
 
-- **Traduccion de metadatos WordPress**: Ahora se traduce titulo, slug y excerpt del post
-  - `{{POST_TITLE}}`: Titulo del post
-  - `{{POST_SLUG}}`: URL amigable (slug)
-  - `{{POST_EXCERPT}}`: Extracto/resumen del post
+- **WordPress metadata translation**: Now translates post title, slug and excerpt
+  - `{{POST_TITLE}}`: Post title
+  - `{{POST_SLUG}}`: Friendly URL (slug)
+  - `{{POST_EXCERPT}}`: Post excerpt/summary
 
-- **Backup completo**: El backup ahora incluye todos los campos (title, slug, excerpt, content)
+- **Full backup**: Backup now includes all fields (title, slug, excerpt, content)
 
-- **UpdatePostFull**: Nueva funcion que actualiza todos los campos del post en una sola operacion
+- **UpdatePostFull**: New function that updates all post fields in a single operation
 
-### Cambiado
+### Changed
 
-- `extract_wordpress_text` ahora incluye seccion de metadatos al inicio del texto extraido
-- `submit_bulk_translation` parsea los marcadores de metadatos y actualiza todos los campos
-- `SaveFullBackup` reemplaza el backup parcial para incluir todos los datos originales
+- `extract_wordpress_text` now includes metadata section at the beginning of extracted text
+- `submit_bulk_translation` parses metadata markers and updates all fields
+- `SaveFullBackup` replaces partial backup to include all original data
 
-### Ejemplo de salida
+### Example output
 
 ```
-METADATOS DEL POST (traducir tambien):
+POST METADATA (translate too):
 ======================================
 {{POST_TITLE}}
 Original Title
@@ -56,7 +72,7 @@ original-slug
 Original excerpt text.
 {{/POST_EXCERPT}}
 
-CONTENIDO A TRADUCIR:
+CONTENT TO TRANSLATE:
 =====================
 {{CHUNK_001}}...
 ```
@@ -65,98 +81,98 @@ CONTENIDO A TRADUCIR:
 
 ## [4.1.0] - 2025-01-18
 
-### Agregado
+### Added
 
-- **extractionId**: Cada extraccion ahora tiene un ID unico para identificar la sesion
-- **Soporte multi-sesion**: Multiples extracciones pueden ejecutarse en paralelo
-- **Almacenamiento global**: Las sesiones se guardan en memoria con mutex para thread-safety
+- **extractionId**: Each extraction now has a unique ID to identify the session
+- **Multi-session support**: Multiple extractions can run in parallel
+- **Global storage**: Sessions are stored in memory with mutex for thread-safety
 
-### Cambiado
+### Changed
 
-- `extract_divi_text` y `extract_wordpress_text` ahora devuelven `extractionId` en la respuesta
-- `submit_bulk_translation` ahora requiere `extractionId` como parametro obligatorio
-- Mensajes de respuesta incluyen el `extractionId` para facilitar el seguimiento
+- `extract_divi_text` and `extract_wordpress_text` now return `extractionId` in response
+- `submit_bulk_translation` now requires `extractionId` as mandatory parameter
+- Response messages include `extractionId` for easy tracking
 
-### Beneficios
+### Benefits
 
-- Claude Desktop puede referenciar la sesion por ID en lugar de depender del estado del servidor
-- Mas robusto ante desconexiones o errores
-- Preparado para traducciones en paralelo
+- Claude Desktop can reference the session by ID instead of relying on server state
+- More robust against disconnections or errors
+- Prepared for parallel translations
 
 ---
 
 ## [4.0.0] - 2025-01-18
 
-### Agregado
+### Added
 
-- **Modo BULK (Optimizado)**: Nuevo flujo de traduccion que reduce drasticamente las llamadas MCP
-  - `extract_divi_text`: Extrae TODO el texto de un archivo Divi en un solo documento con marcadores `{{CHUNK_XXX}}`
-  - `extract_wordpress_text`: Igual pero desde WordPress MySQL
-  - `submit_bulk_translation`: Recibe el texto traducido completo, parsea los marcadores y reensambla el documento
+- **BULK mode (Optimized)**: New translation flow that drastically reduces MCP calls
+  - `extract_divi_text`: Extracts ALL text from a Divi file in a single document with `{{CHUNK_XXX}}` markers
+  - `extract_wordpress_text`: Same but from WordPress MySQL
+  - `submit_bulk_translation`: Receives complete translated text, parses markers and reassembles the document
 
-- **Particionado automatico**: Si el texto supera 30KB, se divide automaticamente en 2-3 partes
+- **Automatic partitioning**: If text exceeds 30KB, it's automatically divided into 2-3 parts
 
-- **Marcadores de chunk**: Sistema de marcadores `{{CHUNK_001}}...{{/CHUNK_001}}` para identificar bloques de texto
+- **Chunk markers**: `{{CHUNK_001}}...{{/CHUNK_001}}` marker system to identify text blocks
 
-### Cambiado
+### Changed
 
-- Flujo de traduccion optimizado: de N+1 llamadas MCP a solo 2 llamadas
-- Actualizado README.md con documentacion del modo BULK
-- Actualizado CLAUDE.md con instrucciones para Claude Desktop
+- Optimized translation flow: from N+1 MCP calls to just 2 calls
+- Updated README.md with BULK mode documentation
+- Updated CLAUDE.md with instructions for Claude Desktop
 
-### Por que este cambio?
+### Why this change?
 
-El modo legacy (chunk-by-chunk) requeria una llamada MCP por cada bloque de texto. En documentos grandes (60+ chunks), Claude Desktop perdia el contexto y fallaba antes de completar la traduccion.
+The legacy mode (chunk-by-chunk) required one MCP call per text block. In large documents (60+ chunks), Claude Desktop would lose context and fail before completing the translation.
 
-El nuevo modo BULK:
-1. Extrae todo el texto en una sola llamada
-2. Claude traduce sin llamar herramientas (minimo consumo de tokens)
-3. Reensambla en una sola llamada
+The new BULK mode:
+1. Extracts all text in a single call
+2. Claude translates without calling tools (minimal token consumption)
+3. Reassembles in a single call
 
-**Resultado**: Traducciones que antes fallaban ahora completan exitosamente.
+**Result**: Translations that previously failed now complete successfully.
 
 ---
 
 ## [3.0.0] - 2025-01-17
 
-### Agregado
+### Added
 
-- Soporte para WordPress MySQL directo
-  - `start_wordpress_translation`: Lee posts directamente de la BD
-  - Backup automatico del contenido original
-  - Actualizacion automatica de la BD al finalizar
+- Support for direct WordPress MySQL
+  - `start_wordpress_translation`: Reads posts directly from database
+  - Automatic backup of original content
+  - Automatic database update upon completion
 
-- Variables de entorno para configuracion MySQL:
+- Environment variables for MySQL configuration:
   - `WP_MYSQL_HOST`, `WP_MYSQL_PORT`, `WP_MYSQL_USER`
   - `WP_MYSQL_PASSWORD`, `WP_MYSQL_DATABASE`
   - `WP_TABLE_PREFIX`, `WP_BACKUP_DIR`
 
-### Cambiado
+### Changed
 
-- Refactorizado el sistema de sesiones para soportar multiples fuentes
+- Refactored session system to support multiple sources
 
 ---
 
 ## [2.0.0] - 2025-01-16
 
-### Agregado
+### Added
 
-- Sistema de tokenizacion mejorado para shortcodes Divi
-- Soporte para shortcodes de cierre `[/et_*]`
-- Limpieza automatica de etiquetas HTML vacias
+- Improved tokenization system for Divi shortcodes
+- Support for closing shortcodes `[/et_*]`
+- Automatic cleanup of empty HTML tags
 
-### Cambiado
+### Changed
 
-- Mejor manejo de caracteres especiales en atributos
+- Better handling of special characters in attributes
 
 ---
 
 ## [1.0.0] - 2025-01-15
 
-### Agregado
+### Added
 
-- Implementacion inicial del servidor MCP
-- `start_divi_translation`: Inicia traduccion desde archivo
-- `submit_translation`: Envia traduccion de un chunk
-- `get_translation_status`: Muestra progreso
-- Tokenizador basico para shortcodes `[et_*]`
+- Initial MCP server implementation
+- `start_divi_translation`: Starts translation from file
+- `submit_translation`: Submits translation of a chunk
+- `get_translation_status`: Shows progress
+- Basic tokenizer for `[et_*]` shortcodes
