@@ -42,10 +42,10 @@ backups/
 *.bak
 
 # Test output files (keep only source examples)
-test/*.es.txt
-test/*.en.txt
-test/*.fr.txt
-test/*.de.txt
+testdata/*.es.txt
+testdata/*.en.txt
+testdata/*.fr.txt
+testdata/*.de.txt
 
 # OS files
 .DS_Store
