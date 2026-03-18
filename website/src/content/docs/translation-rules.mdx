@@ -1,0 +1,217 @@
+---
+title: Translation Rules
+description: What gets translated, what stays unchanged, and how the chunk marker format works.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## The core principle
+
+A Divi page file contains two kinds of content:
+
+1. **Divi shortcodes** — structural markup like `[et_pb_section]`, `[et_pb_row]`, `[et_pb_text]`. These define the page layout. Changing them breaks the page.
+2. **Text content** — headings, paragraphs, and image alt text inside those shortcodes. This is what gets translated.
+
+The server separates these two kinds of content before handing anything to Claude. Claude only ever sees the text content, wrapped in numbered markers. The shortcodes are kept server-side and reinserted after translation.
+
+---
+
+## What to translate
+
+| Content | Example |
+|---------|---------|
+| Visible text in HTML elements | `<h2>Welcome</h2>` → `<h2>Bienvenue</h2>` |
+| Image `alt` attributes | `alt="Team photo"` → `alt="Photo de l'équipe"` |
+| Element `title` attributes | `title="Learn more"` → `title="En savoir plus"` |
+
+---
+
+## What NOT to translate
+
+| Content | Example | Reason |
+|---------|---------|--------|
+| Divi shortcodes | `[et_pb_section fb_built="1" ...]` | Page structure — changing breaks layout |
+| Shortcode closing tags | `[/et_pb_section]` | Required by Divi parser |
+| Shortcode attributes | `_builder_version="4.9.0"` | Internal Divi settings |
+| HTML attributes | `class="et_pb_text"`, `id="main"` | CSS and JavaScript hooks |
+| `href` URLs | `href="https://example.com"` | Link targets |
+| `src` attributes | `src="/wp-content/uploads/image.jpg"` | File paths |
+| `data-*` attributes | `data-parallax-amount="0.3"` | JavaScript data |
+| Chunk markers | `{{CHUNK_001}}` / `{{/CHUNK_001}}` | Server uses these to reassemble |
+| Metadata markers | `{{POST_TITLE}}`, `{{POST_SLUG}}`, `{{POST_EXCERPT}}` | Server uses these to update WordPress fields |
+
+---
+
+## What to preserve exactly
+
+- HTML tag structure (opening and closing tags, nesting)
+- Line breaks and blank lines between blocks
+- HTML entities: `&nbsp;`, `&amp;`, `&lt;`, `&gt;`, `&#8220;`, etc.
+- Inline elements: `<strong>`, `<em>`, `<a href="...">`, `<span class="...">` (translate text inside, keep the tags)
+
+---
+
+## What to remove
+
+Empty tags that result from translation (for example, if the original had a non-breaking space placeholder):
+
+- `<p></p>`
+- `<p>&nbsp;</p>`
+- `<span></span>`
+
+The server also removes these during reassembly, but Claude can omit them during translation to keep the output clean.
+
+---
+
+## Chunk marker format
+
+The server wraps each translatable block in numbered markers:
+
+```
+{{CHUNK_001}}
+<h2>Original heading</h2>
+<p>First paragraph.</p>
+{{/CHUNK_001}}
+
+{{CHUNK_002}}
+<p>Second paragraph with <strong>bold text</strong>.</p>
+{{/CHUNK_002}}
+```
+
+**Rules for markers:**
+
+- Keep every `{{CHUNK_XXX}}` opening tag on its own line
+- Keep every `{{/CHUNK_XXX}}` closing tag on its own line
+- Keep the number exactly — do not renumber
+- Do not merge or split chunks
+- Do not add new chunks
+
+**Correct translation:**
+
+```
+{{CHUNK_001}}
+<h2>Titre traduit</h2>
+<p>Premier paragraphe.</p>
+{{/CHUNK_001}}
+
+{{CHUNK_002}}
+<p>Deuxième paragraphe avec <strong>texte en gras</strong>.</p>
+{{/CHUNK_002}}
+```
+
+**Common mistakes:**
+
+```
+# Wrong — marker text modified
+{{CHUNK-001}}
+
+# Wrong — markers merged
+{{CHUNK_001}}
+content of chunk 1
+content of chunk 2
+{{/CHUNK_002}}
+
+# Wrong — text added outside markers
+This is an extra paragraph I added.
+{{CHUNK_001}}
+...
+```
+
+---
+
+## WordPress metadata markers
+
+For WordPress posts, metadata is included before the content chunks:
+
+```
+{{POST_TITLE}}
+Original Post Title
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+original-post-title
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+A short summary of the post.
+{{/POST_EXCERPT}}
+```
+
+**Translation rules:**
+
+- `POST_TITLE` — translate naturally, same conventions as the page title
+- `POST_SLUG` — translate and adapt for URLs: lowercase, hyphens only, no accented characters, no spaces
+- `POST_EXCERPT` — translate the full excerpt text
+
+**Slug adaptation example:**
+
+```
+# Source (English)
+{{POST_SLUG}}
+our-products-and-services
+{{/POST_SLUG}}
+
+# Translation (French)
+{{POST_SLUG}}
+nos-produits-et-services
+{{/POST_SLUG}}
+
+# Translation (German)
+{{POST_SLUG}}
+unsere-produkte-und-dienstleistungen
+{{/POST_SLUG}}
+```
+
+---
+
+## Multi-part documents
+
+Documents larger than approximately 30 KB are automatically split into parts. The server labels each part:
+
+```
+PART 1 of 3
+============
+{{CHUNK_001}}...{{/CHUNK_001}}
+{{CHUNK_002}}...{{/CHUNK_002}}
+```
+
+Translate each part and submit it with `submit_bulk_translation`. The server processes each part and then returns the next one. After the last part is submitted, the server writes the final output.
+
+<Aside type="tip">
+  When working with multi-part documents, use the same extractionId for all parts. The server tracks progress automatically and prompts Claude for the next part after each submission.
+</Aside>
+
+---
+
+## Complete example
+
+**Source (English):**
+
+```
+{{CHUNK_001}}
+<p class="intro">Welcome to our store</p>
+{{/CHUNK_001}}
+
+{{CHUNK_002}}
+<img src="banner.jpg" alt="Seasonal promotion banner" />
+<p>Contact us today for a free quote.</p>
+{{/CHUNK_002}}
+```
+
+**Translation (Spanish):**
+
+```
+{{CHUNK_001}}
+<p class="intro">Bienvenido a nuestra tienda</p>
+{{/CHUNK_001}}
+
+{{CHUNK_002}}
+<img src="banner.jpg" alt="Banner de promoción de temporada" />
+<p>Contáctenos hoy para un presupuesto gratuito.</p>
+{{/CHUNK_002}}
+```
+
+Note:
+- `class="intro"` — not translated (HTML attribute)
+- `src="banner.jpg"` — not translated (file path)
+- `alt="..."` — translated (visible description)

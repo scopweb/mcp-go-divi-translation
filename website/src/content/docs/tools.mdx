@@ -1,0 +1,202 @@
+---
+title: Tools Reference
+description: All eight tools provided by Divi Translator MCP, with parameters and usage examples.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## How to use these tools
+
+You do not call these tools directly. Claude calls them for you when you describe what you want to do. The examples below show what to say to Claude and what happens behind the scenes.
+
+The tools fall into three groups:
+
+| Group | Tools | Use this |
+|-------|-------|----------|
+| **Bulk** (recommended) | `extract_divi_text`, `extract_wordpress_text`, `submit_bulk_translation` | Always |
+| **Utility** | `get_translation_status`, `server_info` | For status and debugging |
+| **Legacy** (deprecated) | `start_divi_translation`, `start_wordpress_translation`, `submit_translation` | Avoid — may fail on large documents |
+
+---
+
+## Bulk tools
+
+### `extract_divi_text`
+
+Reads a Divi page file from disk, tokenises the content (separating shortcodes from translatable text), and returns the text in numbered chunk blocks ready for translation.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `inputPath` | string | ✅ | Absolute path to the source Divi file |
+| `outputPath` | string | ✅ | Absolute path where the translated file will be saved |
+| `targetLang` | string | ✅ | Target language code (e.g. `fr`, `de`, `es`) |
+
+**Returns:**
+
+- `extractionId` — a 16-character hex identifier for this session (e.g. `41167e5c31ab74c1`)
+- The full text to translate, wrapped in `{{CHUNK_XXX}}` / `{{/CHUNK_XXX}}` markers
+
+**Example prompt:**
+
+```
+Translate the Divi file to French:
+- inputPath: /home/user/pages/home.txt
+- outputPath: /home/user/pages/home.fr.txt
+- targetLang: fr
+
+Use extract_divi_text, translate keeping the {{CHUNK_XXX}} markers, then use submit_bulk_translation.
+```
+
+---
+
+### `extract_wordpress_text`
+
+Connects to the WordPress database, retrieves a post by ID, and returns its content plus metadata (title, slug, excerpt) in chunk format.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `postId` | integer | ✅ | WordPress post ID |
+| `targetLang` | string | ✅ | Target language code |
+
+**Returns:**
+
+- `extractionId` — session identifier
+- Post metadata block (title, slug, excerpt) in `{{POST_TITLE}}`, `{{POST_SLUG}}`, `{{POST_EXCERPT}}` markers
+- Post content in `{{CHUNK_XXX}}` markers
+
+**Example output format:**
+
+```
+POST METADATA (translate these too):
+======================================
+{{POST_TITLE}}
+Welcome to Our Store
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+welcome-to-our-store
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Discover our products and services.
+{{/POST_EXCERPT}}
+
+CONTENT TO TRANSLATE:
+=====================
+{{CHUNK_001}}
+<h2>Our story</h2>
+<p>We have been building...</p>
+{{/CHUNK_001}}
+```
+
+**Example prompt:**
+
+```
+Translate WordPress post ID 42 to Spanish.
+Use extract_wordpress_text, translate keeping all markers, then use submit_bulk_translation.
+```
+
+<Aside type="note">
+  Requires MySQL credentials configured in your `.env` file or Claude Desktop config. The original post is backed up to disk before any changes are written.
+</Aside>
+
+---
+
+### `submit_bulk_translation`
+
+Receives the `extractionId` from a previous extraction and the complete translated text. The server matches each chunk by its number, reassembles the original Divi structure, and writes the output file (or updates the WordPress post).
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `extractionId` | string | ✅ | The ID returned by `extract_divi_text` or `extract_wordpress_text` |
+| `translatedText` | string | ✅ | The full translated content with all `{{CHUNK_XXX}}` markers preserved |
+
+**Example:**
+
+```json
+{
+  "extractionId": "41167e5c31ab74c1",
+  "translatedText": "{{CHUNK_001}}\n<h2>Notre histoire</h2>\n<p>Nous construisons depuis...</p>\n{{/CHUNK_001}}"
+}
+```
+
+<Aside type="tip">
+  Always include every marker from the extraction output — including opening and closing tags. Missing markers cause a reassembly error.
+</Aside>
+
+---
+
+## Workflow summary
+
+The complete bulk workflow is three steps:
+
+```
+1.  extract_divi_text / extract_wordpress_text
+         ↓  returns extractionId + text with {{CHUNK_XXX}} markers
+
+2.  Claude translates the text
+         ↓  (no tool calls during translation)
+
+3.  submit_bulk_translation(extractionId, translatedText)
+         ↓  server reassembles and writes output
+```
+
+---
+
+## Utility tools
+
+### `get_translation_status`
+
+Shows the current state of any active translation session: how many chunks have been processed, how many remain, and what file is being translated.
+
+**Parameters:** none
+
+**Example prompt:**
+
+> "What is the current translation status?"
+
+---
+
+### `server_info`
+
+Returns the server version, MCP protocol version, MySQL connection status, number of active sessions, and the list of available tools.
+
+**Parameters:** none
+
+**Example prompt:**
+
+> "Run server_info"
+
+**Example output:**
+
+```
+Divi Translator MCP v4.4.0
+Protocol: 2025-11-25
+MySQL: connected (wp_mysite)
+Active sessions: 0
+Tools: extract_divi_text, extract_wordpress_text, submit_bulk_translation,
+       get_translation_status, server_info, start_divi_translation,
+       start_wordpress_translation, submit_translation
+```
+
+---
+
+## Legacy tools (deprecated)
+
+These tools translate documents chunk by chunk, requiring one tool call per chunk. They can fail on large documents when Claude's context window fills up. Use the bulk tools instead.
+
+| Tool | Description |
+|------|-------------|
+| `start_divi_translation` | Starts a file-based translation, returns the first chunk |
+| `start_wordpress_translation` | Starts a WordPress post translation, returns the first chunk |
+| `submit_translation` | Submits the current chunk translation and returns the next chunk |
+
+<Aside type="caution">
+  The legacy tools are kept for backward compatibility only. For new translations, always use `extract_divi_text` or `extract_wordpress_text` with `submit_bulk_translation`.
+</Aside>

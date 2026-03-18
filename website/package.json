@@ -1,0 +1,25 @@
+{
+  "name": "divi-translator-mcp-docs",
+  "type": "module",
+  "version": "4.4.0",
+  "description": "Documentation for Divi Translator MCP — automatic Divi page translation preserving Divi shortcodes",
+  "author": "scopweb",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scopweb/mcp-go-divi-translation.git",
+    "directory": "website"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.37.6",
+    "astro": "^5.6.1",
+    "sharp": "^0.34.2"
+  }
+}

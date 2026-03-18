@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+// validTablePrefix matches only safe table prefix characters (alphanumeric + underscore)
+var validTablePrefix = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 // WordPressDB handles WordPress database operations
 type WordPressDB struct {
@@ -54,6 +57,10 @@ func NewWordPressDB() (*WordPressDB, error) {
 
 	if user == "" || database == "" {
 		return nil, fmt.Errorf("WP_MYSQL_USER y WP_MYSQL_DATABASE son obligatorios")
+	}
+
+	if !validTablePrefix.MatchString(tablePrefix) {
+		return nil, fmt.Errorf("WP_TABLE_PREFIX contiene caracteres no permitidos (solo alfanumericos y _)")
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
@@ -232,17 +239,3 @@ func (wp *WordPressDB) GetTablePrefix() string {
 	return wp.tablePrefix
 }
 
-// sanitizeFilename removes invalid characters from filename
-func sanitizeFilename(s string) string {
-	// Replace invalid characters
-	invalid := []string{"/", "\\", ":", "*", "?", "\"", "<", ">", "|"}
-	result := s
-	for _, char := range invalid {
-		result = strings.ReplaceAll(result, char, "_")
-	}
-	// Limit length
-	if len(result) > 50 {
-		result = result[:50]
-	}
-	return result
-}

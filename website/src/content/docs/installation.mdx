@@ -1,0 +1,195 @@
+---
+title: Installation
+description: Install Divi Translator MCP and connect it to Claude Desktop in a few steps.
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+## Prerequisites
+
+| Requirement | Notes |
+|-------------|-------|
+| Claude Desktop | Free or Pro plan. Download at [claude.ai/download](https://claude.ai/download) |
+| Go 1.21+ | Only needed if you build from source |
+| MySQL access | Only needed for WordPress integration |
+
+---
+
+## Option 1 — Download the pre-built binary (Windows)
+
+A compiled Windows executable is included in the repository under `bin/divi-translator.exe`. This is the fastest way to get started on Windows — no build tools required.
+
+<Steps>
+
+1. **Download the repository**
+
+   ```bash
+   git clone https://github.com/scopweb/mcp-go-divi-translation.git
+   cd mcp-go-divi-translation
+   ```
+
+   Or download the ZIP from GitHub and extract it.
+
+2. **Locate the binary**
+
+   The executable is at `bin/divi-translator.exe`. Note the full path — you will need it in the next step.
+
+3. **Configure Claude Desktop**
+
+   Open (or create) your Claude Desktop configuration file:
+
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+   Add the server entry:
+
+   ```json title="claude_desktop_config.json"
+   {
+     "mcpServers": {
+       "divi-translator": {
+         "command": "C:\\path\\to\\mcp-go-divi-translation\\bin\\divi-translator.exe",
+         "args": []
+       }
+     }
+   }
+   ```
+
+   Replace `C:\\path\\to\\` with the actual path where you cloned the repository.
+
+4. **Restart Claude Desktop**
+
+   Quit and reopen Claude Desktop. The server appears in the tools panel (hammer icon). You should see tools like `extract_divi_text` and `extract_wordpress_text` listed.
+
+</Steps>
+
+---
+
+## Option 2 — Build from source
+
+Use this option on macOS, Linux, or if you prefer to compile yourself.
+
+<Steps>
+
+1. **Install Go**
+
+   Download Go 1.21 or later from [go.dev/dl](https://go.dev/dl). Verify the installation:
+
+   ```bash
+   go version
+   # Expected: go version go1.21.x ...
+   ```
+
+2. **Clone and build**
+
+   ```bash
+   git clone https://github.com/scopweb/mcp-go-divi-translation.git
+   cd mcp-go-divi-translation
+   go build -o divi-translator .
+   ```
+
+   This produces a `divi-translator` binary in the current directory.
+
+3. **Configure Claude Desktop**
+
+   ```json title="claude_desktop_config.json"
+   {
+     "mcpServers": {
+       "divi-translator": {
+         "command": "/absolute/path/to/divi-translator",
+         "args": []
+       }
+     }
+   }
+   ```
+
+4. **Restart Claude Desktop**
+
+   Quit and reopen Claude Desktop.
+
+</Steps>
+
+---
+
+## Option 3 — With WordPress integration
+
+To translate WordPress posts directly from the database, add your MySQL credentials to the configuration.
+
+<Steps>
+
+1. **Create a `.env` file** in the same directory as the binary:
+
+   ```ini title=".env"
+   WP_MYSQL_HOST=localhost
+   WP_MYSQL_PORT=3306
+   WP_MYSQL_USER=your_db_user
+   WP_MYSQL_PASSWORD=your_db_password
+   WP_MYSQL_DATABASE=your_wp_database
+   WP_TABLE_PREFIX=wp_
+   WP_BACKUP_DIR=/path/to/backup/folder
+   ```
+
+   The server loads this file automatically on startup.
+
+2. **Or pass credentials via the Claude Desktop config** using `env`:
+
+   ```json title="claude_desktop_config.json"
+   {
+     "mcpServers": {
+       "divi-translator": {
+         "command": "/path/to/divi-translator",
+         "args": [],
+         "env": {
+           "WP_MYSQL_HOST": "localhost",
+           "WP_MYSQL_PORT": "3306",
+           "WP_MYSQL_USER": "your_db_user",
+           "WP_MYSQL_PASSWORD": "your_db_password",
+           "WP_MYSQL_DATABASE": "your_wp_database",
+           "WP_TABLE_PREFIX": "wp_",
+           "WP_BACKUP_DIR": "/path/to/backups"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Restart Claude Desktop** after saving the config.
+
+</Steps>
+
+<Aside type="caution">
+  Never commit `claude_desktop_config.json` or `.env` files to a public repository. They contain your database credentials.
+</Aside>
+
+---
+
+## Verify the installation
+
+After restarting Claude Desktop, open a conversation and ask:
+
+> "What tools do you have available from the divi-translator server?"
+
+Claude should list eight tools including `extract_divi_text`, `extract_wordpress_text`, and `submit_bulk_translation`.
+
+You can also ask Claude to run `server_info` for a status summary:
+
+> "Run server_info on the divi-translator"
+
+Expected output:
+```
+Divi Translator MCP v4.4.0
+Protocol: 2025-11-25
+MySQL: connected / not configured
+Active sessions: 0
+```
+
+---
+
+## Common issues
+
+| Problem | Likely cause | Fix |
+|---------|-------------|-----|
+| Server does not appear in Claude Desktop | Wrong path in config | Use an absolute path and double-check the binary exists |
+| Tools not listed after restart | Config JSON syntax error | Validate the JSON at [jsonlint.com](https://jsonlint.com) |
+| MySQL connection error | Wrong credentials or host | Check `.env` values; test MySQL connection separately |
+| `extract_wordpress_text` fails | MySQL not configured | Add database credentials and restart Claude Desktop |
+| Binary won't run on macOS | Gatekeeper block | Run `xattr -dr com.apple.quarantine divi-translator` |

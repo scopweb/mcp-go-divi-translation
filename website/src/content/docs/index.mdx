@@ -1,0 +1,73 @@
+---
+title: Divi Translator MCP
+description: Automatic Divi page translation for Claude Desktop. Preserves all [et_*] shortcodes and HTML structure during translation.
+template: splash
+hero:
+  title: Divi Translator MCP
+  tagline: Translate Divi pages from Claude Desktop. Shortcodes stay intact. HTML structure stays intact. Only the text changes.
+  image:
+    file: ../../assets/scopweb.png
+  actions:
+    - text: Get Started
+      link: /installation/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/scopweb/mcp-go-divi-translation
+      variant: minimal
+      icon: external
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+## What does it do?
+
+Divi Translator MCP is a server that connects to Claude Desktop via the [Model Context Protocol](https://modelcontextprotocol.io). Once installed, you can ask Claude to translate a Divi page — either from a file on disk or directly from a WordPress post — and the server handles everything: extracting translatable text, preserving the Divi shortcode structure, and writing the result back.
+
+The server does not translate anything itself. Claude does the translation. The server extracts the text, keeps track of what must not be changed, and reassembles the final file.
+
+<CardGrid>
+  <Card title="Bulk translation" icon="rocket">
+    Extract all translatable text in one call, translate, and submit. One round-trip per document. Recommended for all use cases.
+  </Card>
+  <Card title="WordPress integration" icon="setting">
+    Connect directly to your WordPress MySQL database. Translate post content, title, slug, and excerpt in one operation. Automatic backup before any change.
+  </Card>
+  <Card title="Shortcode preservation" icon="approve-check">
+    Every `[et_pb_*]` and `[/et_pb_*]` shortcode is tokenised before extraction and restored exactly after translation. Attributes are never sent to the model.
+  </Card>
+  <Card title="Chunk markers" icon="list-format">
+    Text is split into numbered blocks with `{{CHUNK_001}}` markers. Claude translates each block. The server matches and reassembles them by number.
+  </Card>
+  <Card title="Multi-part support" icon="document">
+    Documents larger than ~30 KB are automatically split into parts. The server asks Claude to translate each part before moving to the next.
+  </Card>
+  <Card title="Automatic backups" icon="warning">
+    WordPress posts are backed up to disk before any write operation. The backup includes the original title, slug, excerpt, and content.
+  </Card>
+</CardGrid>
+
+## Supported languages
+
+The server accepts any IETF language code. Common codes used in Divi projects:
+
+| Code | Language | Code | Language |
+|------|----------|------|----------|
+| `en` | English | `de` | German |
+| `es` | Spanish | `it` | Italian |
+| `fr` | French | `pt` | Portuguese |
+| `nl` | Dutch | `ca` | Catalan |
+
+## Requirements
+
+- [Claude Desktop](https://claude.ai/download) (any plan)
+- Go 1.21 or later — only if building from source
+- MySQL access — only for WordPress integration
+
+## Version
+
+Current version: **4.4.0** — MCP protocol 2025-11-25 compliant.
+
+<Aside type="note">
+  This server implements the Model Context Protocol specification dated 2025-11-25. It communicates with Claude Desktop over standard input/output (stdio transport).
+</Aside>

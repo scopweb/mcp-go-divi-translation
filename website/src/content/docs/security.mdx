@@ -1,0 +1,153 @@
+---
+title: Security & Configuration
+description: What the server accesses, how credentials are managed, and how to keep your data safe.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## What the server accesses
+
+| Resource | Access | Scope |
+|----------|--------|-------|
+| **Filesystem** | Read + Write | Only the paths you specify in tool calls |
+| **MySQL database** | Read + Write | Only the WordPress database configured in env variables |
+| **Network** | None | The server has no outbound connections |
+| **System** | None | No shell commands, no process execution |
+
+The server does not make any HTTP requests. It communicates only via stdio with Claude Desktop and via MySQL with your database (if configured).
+
+---
+
+## Credentials
+
+The server reads credentials from environment variables. There are two ways to provide them.
+
+### Option A — `.env` file
+
+Create a `.env` file in the same directory as the `divi-translator` binary:
+
+```ini title=".env"
+WP_MYSQL_HOST=localhost
+WP_MYSQL_PORT=3306
+WP_MYSQL_USER=db_user
+WP_MYSQL_PASSWORD=db_password
+WP_MYSQL_DATABASE=wordpress_db
+WP_TABLE_PREFIX=wp_
+WP_BACKUP_DIR=/path/to/backups
+```
+
+The server loads this file automatically at startup. If the file is not found in the binary's directory, the server also checks the current working directory.
+
+### Option B — Claude Desktop config
+
+Pass credentials via the `env` block in `claude_desktop_config.json`:
+
+```json title="claude_desktop_config.json"
+{
+  "mcpServers": {
+    "divi-translator": {
+      "command": "/path/to/divi-translator",
+      "args": [],
+      "env": {
+        "WP_MYSQL_USER": "db_user",
+        "WP_MYSQL_PASSWORD": "db_password",
+        "WP_MYSQL_DATABASE": "wordpress_db"
+      }
+    }
+  }
+}
+```
+
+<Aside type="caution">
+  The `claude_desktop_config.json` file is stored in your user profile directory. Do not commit it to version control. If you use a shared machine, prefer the `.env` file approach and restrict its permissions: `chmod 600 .env`.
+</Aside>
+
+---
+
+## Environment variables reference
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `WP_MYSQL_HOST` | — | `localhost` | MySQL server hostname |
+| `WP_MYSQL_PORT` | — | `3306` | MySQL port |
+| `WP_MYSQL_USER` | ✅ | — | MySQL username |
+| `WP_MYSQL_PASSWORD` | — | — | MySQL password (empty = no password) |
+| `WP_MYSQL_DATABASE` | ✅ | — | WordPress database name |
+| `WP_TABLE_PREFIX` | — | `wp_` | WordPress table prefix |
+| `WP_BACKUP_DIR` | — | current dir | Directory for backup files |
+
+MySQL credentials are only required if you use the `extract_wordpress_text` tool. File-based translation (`extract_divi_text`) works without any environment variables.
+
+---
+
+## Backup system
+
+Every WordPress post translation creates a backup before writing any changes. This is automatic and cannot be disabled.
+
+**Backup location:** `{WP_BACKUP_DIR}/post_{id}_{timestamp}.txt`
+
+**Backup includes:**
+- Post ID
+- Backup timestamp
+- Original title
+- Original slug
+- Original excerpt
+- Full post content (with all Divi shortcodes)
+
+**To restore a post manually:**
+
+<Steps>
+
+1. Open the backup file and copy the content section (after the `---` separator)
+2. Go to WordPress admin → Posts → Edit the post
+3. Switch to the Text editor (not Visual)
+4. Paste the original content
+5. Restore the title, slug, and excerpt from the backup header
+6. Update the post
+
+</Steps>
+
+Alternatively, restore directly via MySQL:
+
+```sql
+UPDATE wp_posts
+SET
+  post_title   = 'Original Title',
+  post_name    = 'original-slug',
+  post_excerpt = 'Original excerpt...',
+  post_content = '[et_pb_section ...]...[/et_pb_section]'
+WHERE ID = 42;
+```
+
+---
+
+## What the translated text contains
+
+The server passes text through Claude for translation. At no point does it execute the translated content as code. The output is stored as plain text in a file or as a WordPress post content field.
+
+Divi shortcodes are never sent to Claude — they are extracted before the text is returned and reinserted from the server's memory after the translation is received.
+
+---
+
+## Security checklist
+
+<Steps>
+
+1. Keep the `divi-translator` binary updated to the latest release
+2. Store credentials in environment variables, not in the command arguments
+3. Set restrictive permissions on `.env`: `chmod 600 .env`
+4. Do not expose the binary on a network-accessible port — it runs over stdio only
+5. Set `WP_BACKUP_DIR` to a directory outside the web root
+6. Review backup files periodically and remove old ones
+7. Use a dedicated MySQL user with only `SELECT`, `UPDATE` permissions on the WordPress database
+
+</Steps>
+
+---
+
+## Reporting issues
+
+Report bugs and vulnerabilities at:
+[github.com/scopweb/mcp-go-divi-translation/issues](https://github.com/scopweb/mcp-go-divi-translation/issues)
+
+For security-related issues, open a private security advisory on GitHub rather than a public issue.

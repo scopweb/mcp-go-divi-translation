@@ -1,8 +1,6 @@
 module github.com/example/scp-divi-translation
 
-go 1.21.0
-
-toolchain go1.24.6
+go 1.26.0
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3

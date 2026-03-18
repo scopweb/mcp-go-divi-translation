@@ -1,0 +1,215 @@
+---
+title: WordPress Integration
+description: Translate WordPress posts directly from the database, including title, slug, and excerpt. Backups created automatically.
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## How it works
+
+When you run `extract_wordpress_text`, the server:
+
+1. Connects to your WordPress MySQL database
+2. Reads the post by ID — content, title, slug, and excerpt
+3. Creates a full backup of the post on disk
+4. Returns all translatable text in chunk format
+5. Waits for you to submit the translation
+
+When you submit via `submit_bulk_translation`, the server:
+
+1. Matches chunks to the original structure
+2. Updates `post_content`, `post_title`, `post_name` (slug), and `post_excerpt` in the database
+3. Confirms the update
+
+The original post is never modified until you explicitly submit the translation.
+
+---
+
+## Database configuration
+
+The server connects using environment variables. Set these before starting Claude Desktop.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WP_MYSQL_HOST` | `localhost` | MySQL server hostname or IP |
+| `WP_MYSQL_PORT` | `3306` | MySQL port |
+| `WP_MYSQL_USER` | — | MySQL username (required) |
+| `WP_MYSQL_PASSWORD` | — | MySQL password |
+| `WP_MYSQL_DATABASE` | — | Database name (required) |
+| `WP_TABLE_PREFIX` | `wp_` | WordPress table prefix |
+| `WP_BACKUP_DIR` | current dir | Directory where backups are saved |
+
+<Tabs>
+  <TabItem label=".env file">
+    Create a `.env` file in the same directory as the `divi-translator` binary:
+
+    ```ini title=".env"
+    WP_MYSQL_HOST=localhost
+    WP_MYSQL_PORT=3306
+    WP_MYSQL_USER=wordpress_user
+    WP_MYSQL_PASSWORD=strong_password
+    WP_MYSQL_DATABASE=wordpress_db
+    WP_TABLE_PREFIX=wp_
+    WP_BACKUP_DIR=/var/backups/divi-translations
+    ```
+  </TabItem>
+  <TabItem label="Claude Desktop config">
+    Pass credentials via the `env` block in `claude_desktop_config.json`:
+
+    ```json title="claude_desktop_config.json"
+    {
+      "mcpServers": {
+        "divi-translator": {
+          "command": "/path/to/divi-translator",
+          "args": [],
+          "env": {
+            "WP_MYSQL_HOST": "localhost",
+            "WP_MYSQL_PORT": "3306",
+            "WP_MYSQL_USER": "wordpress_user",
+            "WP_MYSQL_PASSWORD": "strong_password",
+            "WP_MYSQL_DATABASE": "wordpress_db",
+            "WP_TABLE_PREFIX": "wp_",
+            "WP_BACKUP_DIR": "/var/backups/divi-translations"
+          }
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## Post metadata translation
+
+WordPress posts have four fields that can be translated:
+
+| Field | Marker | Notes |
+|-------|--------|-------|
+| Post content | `{{CHUNK_XXX}}` | Main Divi page content |
+| Title | `{{POST_TITLE}}` | Shown in browser tab and page header |
+| Slug | `{{POST_SLUG}}` | URL path — use hyphens, no spaces, no special characters |
+| Excerpt | `{{POST_EXCERPT}}` | Short summary used in archives and SEO |
+
+### Extraction output example
+
+```
+POST METADATA (translate these too):
+======================================
+{{POST_TITLE}}
+Welcome to Our Store
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+welcome-to-our-store
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Discover our amazing products and services.
+{{/POST_EXCERPT}}
+
+CONTENT TO TRANSLATE:
+=====================
+{{CHUNK_001}}
+<h2>Our Story</h2>
+<p>We have been crafting...</p>
+{{/CHUNK_001}}
+```
+
+### Translation output example
+
+```
+{{POST_TITLE}}
+Bienvenido a Nuestra Tienda
+{{/POST_TITLE}}
+
+{{POST_SLUG}}
+bienvenido-a-nuestra-tienda
+{{/POST_SLUG}}
+
+{{POST_EXCERPT}}
+Descubre nuestros increíbles productos y servicios.
+{{/POST_EXCERPT}}
+
+{{CHUNK_001}}
+<h2>Nuestra Historia</h2>
+<p>Llevamos años creando...</p>
+{{/CHUNK_001}}
+```
+
+<Aside type="tip">
+  The slug should be adapted for the target language: translated, lowercase, hyphenated. Avoid accented characters in slugs — they work but can cause issues with some server configurations.
+</Aside>
+
+---
+
+## Backup system
+
+Before writing any changes to WordPress, the server saves a complete backup of the post.
+
+**Backup file format:**
+
+```
+{WP_BACKUP_DIR}/post_{postId}_{timestamp}.txt
+```
+
+**Backup contents:**
+
+```
+POST ID: 42
+BACKUP DATE: 2025-01-18 14:30:22
+TITLE: Welcome to Our Store
+SLUG: welcome-to-our-store
+EXCERPT: Discover our products...
+---
+[et_pb_section fb_built="1" ...][et_pb_row ...][et_pb_text ...]
+<h2>Our Story</h2>
+...
+[/et_pb_text][/et_pb_row][/et_pb_section]
+```
+
+Backups are plain text and can be used to restore a post manually via the WordPress admin or a MySQL query.
+
+---
+
+## Step-by-step example
+
+<Steps>
+
+1. **Find the post ID** in WordPress admin (Posts → hover over a post → the URL shows `post=42`)
+
+2. **Ask Claude to translate**:
+
+   ```
+   Translate WordPress post ID 42 to German.
+   Use extract_wordpress_text, translate keeping all markers, then submit with submit_bulk_translation.
+   ```
+
+3. **Claude extracts the post** — calls `extract_wordpress_text` with `postId: 42` and `targetLang: "de"`.
+   The server creates a backup and returns the extractionId and text.
+
+4. **Claude translates** — no additional tool calls during translation.
+
+5. **Claude submits** — calls `submit_bulk_translation` with the extractionId and the translated text.
+
+6. **Server updates WordPress** — post title, slug, excerpt, and content are updated in the database.
+
+</Steps>
+
+---
+
+## Remote databases
+
+The server can connect to any MySQL instance reachable from the machine running Claude Desktop. For a remote WordPress installation:
+
+```ini title=".env"
+WP_MYSQL_HOST=mysql.example.com
+WP_MYSQL_PORT=3306
+WP_MYSQL_USER=remote_user
+WP_MYSQL_PASSWORD=remote_password
+WP_MYSQL_DATABASE=wordpress_production
+```
+
+<Aside type="caution">
+  Connecting directly to a production database carries risk. Consider using a read replica or a staging environment for translations, then applying the changes manually. Always verify the backup was created before submitting.
+</Aside>
