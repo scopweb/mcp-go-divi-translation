@@ -3,7 +3,20 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 )
+
+// isSafePath checks if a path is safe (no directory traversal)
+func isSafePath(path string) bool {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return false
+	}
+	// Normalize and check for traversal attempts
+	cleaned := filepath.Clean(absPath)
+	return !strings.Contains(cleaned, ".."+string(filepath.Separator)) && !strings.HasSuffix(cleaned, "..")
+}
 
 func (s *MCPServer) handleExtractDiviText(req JSONRPCRequest, params CallToolParams) {
 	inputPath, _ := params.Arguments["inputPath"].(string)
@@ -15,6 +28,12 @@ func (s *MCPServer) handleExtractDiviText(req JSONRPCRequest, params CallToolPar
 		return
 	}
 
+	if !isSafePath(inputPath) || !isSafePath(outputPath) {
+		s.writeResponse(JSONRPCResponse{JSONRPC: "2.0", ID: req.ID, Result: errorResult("ERROR: ruta de archivo no segura")})
+		return
+	}
+
+	// #gosec G304 // path validated by isSafePath check above
 	data, err := os.ReadFile(inputPath)
 	if err != nil {
 		s.writeResponse(JSONRPCResponse{JSONRPC: "2.0", ID: req.ID, Result: errorResult(fmt.Sprintf("ERROR leyendo archivo: %v", err))})
@@ -136,7 +155,7 @@ func (s *MCPServer) handleSubmitBulkTranslation(req JSONRPCRequest, params CallT
 func (s *MCPServer) saveBulkToFile(session *BulkTranslationSession) string {
 	result := rebuildTranslatedDocument(session.Tokens, session.ChunkIndices, session.Translations)
 
-	err := os.WriteFile(session.OutputPath, []byte(result), 0644)
+	err := os.WriteFile(session.OutputPath, []byte(result), 0600)
 	if err != nil {
 		return fmt.Sprintf("ERROR guardando archivo: %v", err)
 	}

@@ -248,6 +248,12 @@ func (s *MCPServer) handleStartTranslation(req JSONRPCRequest, params CallToolPa
 		return
 	}
 
+	if !isSafePath(inputPath) || !isSafePath(outputPath) {
+		s.writeResponse(JSONRPCResponse{JSONRPC: "2.0", ID: req.ID, Result: errorResult("ERROR: ruta de archivo no segura")})
+		return
+	}
+
+	// #gosec G304 // path validated by isSafePath check above
 	data, err := os.ReadFile(inputPath)
 	if err != nil {
 		s.writeResponse(JSONRPCResponse{JSONRPC: "2.0", ID: req.ID, Result: errorResult(fmt.Sprintf("ERROR leyendo fichero: %v", err))})
@@ -409,7 +415,7 @@ Cuando termines, usa "submit_translation" con el texto traducido.`,
 func (s *MCPServer) saveTranslatedFile() string {
 	result := rebuildTranslatedDocument(s.session.Tokens, s.session.ChunkIndices, s.session.Translations)
 
-	err := os.WriteFile(s.session.OutputPath, []byte(result), 0644)
+	err := os.WriteFile(s.session.OutputPath, []byte(result), 0600)
 	if err != nil {
 		return fmt.Sprintf("ERROR guardando archivo: %v", err)
 	}

@@ -92,6 +92,7 @@ func (wp *WordPressDB) Close() {
 
 // GetPost retrieves a WordPress post by ID
 func (wp *WordPressDB) GetPost(postID int64) (*WordPressPost, error) {
+	// #gosec G201 // tablePrefix validated by validTablePrefix regex
 	query := fmt.Sprintf(`
 		SELECT ID, post_title, post_name, post_excerpt, post_content, post_status, post_type
 		FROM %sposts
@@ -120,6 +121,7 @@ func (wp *WordPressDB) GetPost(postID int64) (*WordPressPost, error) {
 
 // UpdatePostContent updates the post_content of a WordPress post
 func (wp *WordPressDB) UpdatePostContent(postID int64, newContent string) error {
+	// #gosec G201 // tablePrefix validated by validTablePrefix regex
 	query := fmt.Sprintf(`
 		UPDATE %sposts
 		SET post_content = ?, post_modified = NOW(), post_modified_gmt = UTC_TIMESTAMP()
@@ -141,6 +143,7 @@ func (wp *WordPressDB) UpdatePostContent(postID int64, newContent string) error 
 
 // UpdatePostFull updates post_content, post_title, post_name (slug), and post_excerpt
 func (wp *WordPressDB) UpdatePostFull(postID int64, title, slug, excerpt, content string) error {
+	// #gosec G201 // tablePrefix validated by validTablePrefix regex
 	query := fmt.Sprintf(`
 		UPDATE %sposts
 		SET post_title = ?, post_name = ?, post_excerpt = ?, post_content = ?,
@@ -164,7 +167,7 @@ func (wp *WordPressDB) UpdatePostFull(postID int64, title, slug, excerpt, conten
 // SaveBackup saves the original content to a backup file
 func (wp *WordPressDB) SaveBackup(postID int64, content string, lang string) (string, error) {
 	// Create backup directory if it doesn't exist
-	if err := os.MkdirAll(wp.backupDir, 0755); err != nil {
+	if err := os.MkdirAll(wp.backupDir, 0750); err != nil {
 		return "", fmt.Errorf("error creando directorio de backup: %v", err)
 	}
 
@@ -172,7 +175,7 @@ func (wp *WordPressDB) SaveBackup(postID int64, content string, lang string) (st
 	filename := fmt.Sprintf("post_%d_backup_%s_%s.txt", postID, lang, timestamp)
 	backupPath := filepath.Join(wp.backupDir, filename)
 
-	if err := os.WriteFile(backupPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(backupPath, []byte(content), 0600); err != nil {
 		return "", fmt.Errorf("error guardando backup: %v", err)
 	}
 
@@ -182,7 +185,7 @@ func (wp *WordPressDB) SaveBackup(postID int64, content string, lang string) (st
 // SaveFullBackup saves all translatable fields to a backup file
 func (wp *WordPressDB) SaveFullBackup(post *WordPressPost, lang string) (string, error) {
 	// Create backup directory if it doesn't exist
-	if err := os.MkdirAll(wp.backupDir, 0755); err != nil {
+	if err := os.MkdirAll(wp.backupDir, 0750); err != nil {
 		return "", fmt.Errorf("error creando directorio de backup: %v", err)
 	}
 
@@ -209,7 +212,7 @@ Target Language: %s
 %s
 `, post.ID, timestamp, lang, post.PostTitle, post.PostName, post.PostExcerpt, post.PostContent)
 
-	if err := os.WriteFile(backupPath, []byte(backupContent), 0644); err != nil {
+	if err := os.WriteFile(backupPath, []byte(backupContent), 0600); err != nil {
 		return "", fmt.Errorf("error guardando backup: %v", err)
 	}
 
